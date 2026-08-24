@@ -1,0 +1,127 @@
+import { useEffect, useRef, useState } from 'react';
+import { useParams } from 'react-router-dom';
+import { AppShell } from '../components/layout/AppShell';
+import { PageTransition } from '../components/layout/PageTransition';
+import { GlassCard } from '../components/layout/GlassCard';
+import { SummaryItemRow } from '../components/summary/SummaryItemRow';
+import { SummaryTotalCard } from '../components/summary/SummaryTotalCard';
+import { CopyToWhatsAppButton } from '../components/summary/CopyToWhatsAppButton';
+import { HostPaymentLinkInput } from '../components/summary/HostPaymentLinkInput';
+import { AllParticipantsSummary } from '../components/summary/AllParticipantsSummary';
+import { PaidToggleButton } from '../components/summary/PaidToggleButton';
+import { RemainingToCollectCard } from '../components/summary/RemainingToCollectCard';
+import { UnclaimedAmountCard } from '../components/summary/UnclaimedAmountCard';
+import { RoomNotFoundState } from '../components/join/RoomNotFoundState';
+import { Spinner } from '../components/ui/Spinner';
+import { useRoomState } from '../hooks/useRoomState';
+import { useAuthUid } from '../hooks/useAuthUid';
+import { useCalculations } from '../hooks/useCalculations';
+import { useRoomStoreContext } from '../store/RoomStoreContext';
+import { buildSummaryShareText } from '../lib/whatsapp';
+import { computeUnclaimedAmount, computeUnpaidSummary } from '../lib/calc/splitEngine';
+import type { Room } from '../types';
+
+export function SummaryScreen() {
+  const { roomCode = '' } = useParams();
+  const roomState = useRoomState(roomCode);
+  const uid = useAuthUid();
+  const store = useRoomStoreContext();
+  const room: Room | null = roomState.status === 'ready' ? roomState.room : null;
+  const { totals } = useCalculations(room);
+
+  const [paymentLink, setPaymentLink] = useState('');
+  const seededPaymentLink = useRef(false);
+  useEffect(() => {
+    if (!seededPaymentLink.current && room) {
+      setPaymentLink(room.settings.hostPaymentLink ?? '');
+      seededPaymentLink.current = true;
+    }
+  }, [room]);
+
+  if (roomState.status === 'loading' || uid === null) {
+    return (
+      <AppShell>
+        <div className="flex flex-1 items-center justify-center">
+          <Spinner />
+        </div>
+      </AppShell>
+    );
+  }
+
+  if (roomState.status === 'not-found' || !room) {
+    return (
+      <AppShell>
+        <PageTransition>
+          <div className="flex flex-1 items-center justify-center">
+            <RoomNotFoundState />
+          </div>
+        </PageTransition>
+      </AppShell>
+    );
+  }
+
+  const participantId = uid;
+  const me = room.participants[participantId];
+  const myTotal = totals.find((t) => t.participantId === participantId);
+  const isHost = participantId === room.hostId;
+
+  const allTotals = totals.map((t) => {
+    const participant = room.participants[t.participantId];
+    return {
+      participantId: t.participantId,
+      name: participant?.name ?? '?',
+      total: t.total,
+      isHost: t.participantId === room.hostId,
+      paid: participant?.paid ?? false,
+    };
+  });
+
+  const unpaidSummary = computeUnpaidSummary(room, totals);
+  const unclaimedAmount = computeUnclaimedAmount(room);
+
+  async function handlePaymentLinkChange(value: string) {
+    setPaymentLink(value);
+    await store.updateRoomSettings(roomCode, { hostPaymentLink: value });
+  }
+
+  async function handleTogglePaid(paid: boolean) {
+    await store.updateParticipantPaidStatus(roomCode, participantId, paid);
+  }
+
+  return (
+    <AppShell>
+      <PageTransition>
+        <div className="flex flex-1 flex-col gap-4 overflow-y-auto pb-4 pt-2">
+          <h1 className="text-center text-lg font-bold text-brand-sand">הסיכום שלך</h1>
+
+          {myTotal && myTotal.itemBreakdown.length > 0 && (
+            <GlassCard className="p-4">
+              {myTotal.itemBreakdown.map((line, i) => (
+                <SummaryItemRow key={line.itemId} name={line.itemName} units={line.units} amount={line.amount} index={i} />
+              ))}
+            </GlassCard>
+          )}
+
+          <SummaryTotalCard total={myTotal?.total ?? 0} />
+
+          <UnclaimedAmountCard unclaimedAmount={unclaimedAmount} />
+
+          {me && myTotal && <CopyToWhatsAppButton text={buildSummaryShareText(me.name, room.billData.restaurantName, myTotal)} />}
+
+          {!isHost && me && <PaidToggleButton paid={me.paid} onToggle={handleTogglePaid} />}
+
+          {isHost && (
+            <RemainingToCollectCard
+              remainingAmount={unpaidSummary.remainingAmount}
+              unpaidCount={unpaidSummary.unpaidParticipantIds.length}
+            />
+          )}
+
+          {isHost && <HostPaymentLinkInput value={paymentLink} onChange={handlePaymentLinkChange} />}
+
+          <AllParticipantsSummary rows={allTotals} />
+        </div>
+      </PageTransition>
+    </AppShell>
+  );
+}

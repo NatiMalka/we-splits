@@ -1,0 +1,44 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Secrets — never commit. .env.example documents the required keys instead.
+.env
+.env.*
+!.env.example
+
+# Firebase CLI deploy cache
+.firebase/
+
+# Claude Code local settings (machine-specific absolute paths)
+.claude/settings.local.json
+
+# TypeScript incremental build info
+*.tsbuildinfo
+
+# Test receipt photos (real receipts — may contain personal data)
+*.jpg
+*.jpeg
+*.png
+!public/*.png
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?

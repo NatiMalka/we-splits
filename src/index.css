@@ -1,0 +1,87 @@
+@import 'tailwindcss';
+@import '@fontsource/rubik/400.css';
+@import '@fontsource/rubik/500.css';
+@import '@fontsource/rubik/600.css';
+@import '@fontsource/rubik/700.css';
+@import '@fontsource/rubik/800.css';
+
+@theme {
+  --color-brand-charcoal: #0b1620;
+  --color-brand-teal-900: #0a2e2e;
+  --color-brand-teal-700: #0f4c4b;
+  --color-brand-teal-500: #12726e;
+  --color-brand-teal-300: #4fa69e;
+  --color-brand-amber-600: #c9770b;
+  --color-brand-amber-500: #f5a524;
+  --color-brand-amber-400: #fbbf4a;
+  --color-brand-amber-300: #fdd98a;
+  --color-brand-coral-600: #d9503c;
+  --color-brand-coral-500: #f06449;
+  --color-brand-coral-400: #f5836b;
+  --color-brand-terracotta-600: #9c4221;
+  --color-brand-terracotta-500: #c1502e;
+  --color-brand-sand: #f4e9da;
+
+  --font-sans: 'Rubik', 'ui-sans-serif', 'system-ui', sans-serif;
+
+  --shadow-glass: 0 8px 32px 0 rgba(0, 0, 0, 0.35), inset 0 1px 0 0 rgba(255, 255, 255, 0.08);
+}
+
+@layer base {
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+
+  body {
+    margin: 0;
+    color: var(--color-brand-sand);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+}
+
+@layer components {
+  .app-background {
+    /* min-h-dvh (dynamic viewport height), not min-h-screen (100vh) — 100vh on
+       mobile Safari is measured behind the collapsing address bar, leaving a gap
+       of unstyled white space below the fold until the page scrolls. */
+    @apply relative min-h-dvh overflow-x-hidden bg-gradient-to-b from-[#0b1620] via-[#0f2a2a] to-[#170f0c];
+  }
+
+  .app-background::before,
+  .app-background::after {
+    content: '';
+    position: absolute;
+    border-radius: 9999px;
+    filter: blur(90px);
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  .app-background::before {
+    width: 26rem;
+    height: 26rem;
+    top: -6rem;
+    inset-inline-end: -8rem;
+    background: color-mix(in srgb, var(--color-brand-amber-500) 35%, transparent);
+  }
+
+  .app-background::after {
+    width: 22rem;
+    height: 22rem;
+    bottom: -4rem;
+    inset-inline-start: -6rem;
+    background: color-mix(in srgb, var(--color-brand-coral-500) 30%, transparent);
+  }
+
+  .glass-card {
+    @apply relative rounded-3xl border border-white/10 bg-white/8 shadow-[var(--shadow-glass)] backdrop-blur-xl;
+  }
+
+  .glass-card-solid {
+    @apply relative rounded-3xl border border-white/10 bg-black/25 shadow-[var(--shadow-glass)] backdrop-blur-xl;
+  }
+}

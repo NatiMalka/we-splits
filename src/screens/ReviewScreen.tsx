@@ -9,7 +9,7 @@ import { AddItemButton } from '../components/review/AddItemButton';
 import { TipPercentageSelector } from '../components/review/TipPercentageSelector';
 import { ServiceFeeBanner } from '../components/review/ServiceFeeBanner';
 import { TotalMismatchWarning } from '../components/review/TotalMismatchWarning';
-import { HostNameInput } from '../components/review/HostNameInput';
+import { YourNameInput } from '../components/review/YourNameInput';
 import { ReviewSummaryBar } from '../components/review/ReviewSummaryBar';
 import { useDraftBill } from '../draft/DraftBillContext';
 import { useRoomStoreContext } from '../store/RoomStoreContext';
@@ -42,7 +42,7 @@ export function ReviewScreen() {
   const hasMismatch = Math.abs(mismatch) >= 1;
 
   async function handleCreateRoom() {
-    if (!draft.billData || !draft.hostName.trim()) return;
+    if (!draft.billData || !draft.creatorName.trim()) return;
     setError(null);
     setCreating(true);
     try {
@@ -52,7 +52,7 @@ export function ReviewScreen() {
           defaultTipPercentage: draft.tipPercentage,
           includeServiceInSplit: draft.includeServiceInSplit,
         },
-        hostName: draft.hostName.trim(),
+        creatorName: draft.creatorName.trim(),
       });
       // The host's participant id is the signed-in auth uid (see useAuthUid) —
       // no separate "remember who I am" step needed here anymore.
@@ -108,7 +108,7 @@ export function ReviewScreen() {
             <TipPercentageSelector value={draft.tipPercentage} onChange={draft.setTipPercentage} />
           </GlassCard>
 
-          <HostNameInput value={draft.hostName} onChange={draft.setHostName} />
+          <YourNameInput value={draft.creatorName} onChange={draft.setCreatorName} />
 
           {error && <p className="text-center text-sm text-brand-coral-400">{error}</p>}
         </div>
@@ -117,7 +117,7 @@ export function ReviewScreen() {
           subtotal={subtotal + serviceShare}
           tipAmount={tipAmount}
           total={total}
-          canSubmit={!creating && draft.hostName.trim().length > 0 && draft.billData.items.length > 0}
+          canSubmit={!creating && draft.creatorName.trim().length > 0 && draft.billData.items.length > 0}
           onSubmit={handleCreateRoom}
         />
       </PageTransition>

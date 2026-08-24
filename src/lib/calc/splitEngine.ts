@@ -174,31 +174,45 @@ export function computeBillClaimProgress(
   return { claimedRatio, perItem };
 }
 
-export interface UnpaidSummary {
-  /** Sum of totals owed by non-host participants who haven't marked themselves paid. */
-  remainingAmount: number;
+export interface SettleUpStatus {
+  /** How much of the bill still isn't marked as settled. */
+  unpaidAmount: number;
   unpaidParticipantIds: string[];
+  paidCount: number;
+  /** Everyone who owes something — people who claimed nothing aren't counted. */
+  owingCount: number;
 }
 
 /**
- * The host doesn't owe themselves — only non-host participants count toward what's
- * still outstanding.
+ * Everyone at the table is equal here: this app is for diners sorting a receipt
+ * between themselves, so there is nobody "collecting" and nobody exempt. Whoever
+ * scanned the receipt settles up exactly like everyone else.
  */
-export function computeUnpaidSummary(
+export function computeSettleUpStatus(
   room: Pick<Room, 'participants'>,
   totals: ParticipantTotal[],
-): UnpaidSummary {
-  let remainingAmount = 0;
+): SettleUpStatus {
+  let unpaidAmount = 0;
+  let paidCount = 0;
+  let owingCount = 0;
   const unpaidParticipantIds: string[] = [];
 
   for (const total of totals) {
     const participant = room.participants[total.participantId];
-    if (!participant || participant.isHost || participant.paid) continue;
-    remainingAmount += total.total;
-    unpaidParticipantIds.push(participant.id);
+    // Someone who claimed nothing owes nothing — they shouldn't drag the
+    // "everyone settled" state down by never ticking a box.
+    if (!participant || total.total <= 0) continue;
+
+    owingCount++;
+    if (participant.paid) {
+      paidCount++;
+    } else {
+      unpaidAmount += total.total;
+      unpaidParticipantIds.push(participant.id);
+    }
   }
 
-  return { remainingAmount, unpaidParticipantIds };
+  return { unpaidAmount, unpaidParticipantIds, paidCount, owingCount };
 }
 
 /** ₪ value of the bill nobody has claimed yet — the money-amount counterpart to

@@ -79,27 +79,27 @@ export class LocalRoomStore implements RoomStore {
     return structuredClone(state.room);
   }
 
-  async createRoom(input: CreateRoomInput): Promise<{ room: Room; hostParticipantId: string }> {
+  async createRoom(input: CreateRoomInput): Promise<{ room: Room; creatorParticipantId: string }> {
     let roomId = generateRoomCode();
     while (this.getRoomSnapshot(roomId).status !== 'not-found') {
       roomId = generateRoomCode();
     }
 
-    const hostParticipantId = crypto.randomUUID();
+    const creatorParticipantId = crypto.randomUUID();
     const createdAt = Date.now();
     const room: Room = {
       roomId,
       createdAt,
       expiresAt: createdAt + ROOM_TTL_MS,
       status: 'active',
-      hostId: hostParticipantId,
+      hostId: creatorParticipantId,
       billData: input.billData,
       settings: input.settings,
       participants: {
-        [hostParticipantId]: {
-          id: hostParticipantId,
-          name: input.hostName,
-          isHost: true,
+        [creatorParticipantId]: {
+          id: creatorParticipantId,
+          name: input.creatorName,
+          isCreator: true,
           joinedAt: Date.now(),
           selections: [],
           paid: false,
@@ -108,7 +108,7 @@ export class LocalRoomStore implements RoomStore {
     };
 
     this.writeRoom(room);
-    return { room, hostParticipantId };
+    return { room, creatorParticipantId };
   }
 
   async getRoom(roomId: string): Promise<Room | null> {
@@ -121,7 +121,7 @@ export class LocalRoomStore implements RoomStore {
     const participant: Participant = {
       id: crypto.randomUUID(),
       name,
-      isHost: false,
+      isCreator: false,
       joinedAt: Date.now(),
       selections: [],
       paid: false,

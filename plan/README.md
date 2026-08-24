@@ -4,6 +4,8 @@ I went through the whole app and found about 50 things worth improving. This fil
 
 Every item in the other files is written the same way: *what we have now → what's wrong with it → how to fix it.*
 
+> **What this app is** (clarified 24 Aug 2026): a tool for **diners** splitting a receipt between themselves. There is no host, nobody collects money, and the restaurant isn't involved. Everyone is equal — the only difference is that one person scanned the receipt, which is what lets them edit the items. A business/restaurant version may come much later; nothing here assumes it.
+
 ## The documents
 
 | File | What's inside |
@@ -29,7 +31,7 @@ If you only read one section, read this one.
 
 **3. One guest can change what everyone else owes.** The security guard checks a guest's selections the first time they save, and never again. Someone can send a fake number from their own phone and quietly shift everybody's total. → [4.1](4-security.md)
 
-**4. The payment link doesn't work.** The host types their Bit link, it saves, and no guest ever sees it. The "pay me back" step — the whole point of the app — is a dead end today. → [2.1](2-missing-features.md)
+**4. The bill can't be fixed once the room is open.** Dessert arrives late, or the AI misread a price — and the only way out is to start the whole room over. → [2.4](2-missing-features.md)
 
 **5. There's no way to type a room code.** The code is displayed big on screen, but there's no field anywhere to enter one. If the QR won't scan, the guest simply can't get in. → [2.2](2-missing-features.md)
 
@@ -51,12 +53,11 @@ Nothing here adds features. It protects the work and stops the app from taking p
 ### Phase 2 — Make it actually work
 *About a day. Removes the dead ends people can hit today.*
 
-6. Show the payment link to guests → [2.1](2-missing-features.md)
-7. Share to WhatsApp in one tap instead of copy-and-paste → [2.3](2-missing-features.md)
-8. Let people type a room code → [2.2](2-missing-features.md)
-9. Add a back button on the summary screen → [2.5](2-missing-features.md)
-10. Show a message when a tap fails to save → [6.4](6-reliability.md)
-11. Stop the "forever spinner" when login fails → [6.3](6-reliability.md)
+6. Share to WhatsApp in one tap instead of copy-and-paste → [2.3](2-missing-features.md)
+7. Let people type a room code → [2.2](2-missing-features.md)
+8. Add a back button on the summary screen → [2.5](2-missing-features.md)
+9. Show a message when a tap fails to save → [6.4](6-reliability.md)
+10. Stop the "forever spinner" when login fails → [6.3](6-reliability.md)
 
 ### Phase 3 — Lock the doors
 *About half a day. Two of these are in your console, not the code.*
@@ -90,10 +91,9 @@ Nothing here adds features. It protects the work and stops the app from taking p
 ### Phase 6 — Nice to have
 *No rush. Pick what you like.*
 
-29. Let the host fix the bill after the room is open → [2.4](2-missing-features.md)
-30. "Just split it evenly" button → [7.1](7-ideas.md)
-31. Keep the receipt photo so people can check it → [7.2](7-ideas.md)
-32. One group summary message → [7.3](7-ideas.md)
+29. "Just split it evenly" button → [7.1](7-ideas.md)
+30. Keep the receipt photo so people can check it → [7.2](7-ideas.md)
+31. One group summary message → [7.3](7-ideas.md)
 
 ---
 

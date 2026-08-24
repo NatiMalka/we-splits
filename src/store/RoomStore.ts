@@ -3,7 +3,8 @@ import type { BillData, Participant, Room, RoomSettings, Selection } from '../ty
 export interface CreateRoomInput {
   billData: BillData;
   settings: RoomSettings;
-  hostName: string;
+  /** Name of whoever scanned the receipt and is opening the room. */
+  creatorName: string;
 }
 
 export class RoomNotFoundError extends Error {
@@ -28,7 +29,7 @@ export type RoomState = { status: 'loading' } | { status: 'not-found' } | { stat
  * implementation drops in without touching any UI code.
  */
 export interface RoomStore {
-  createRoom(input: CreateRoomInput): Promise<{ room: Room; hostParticipantId: string }>;
+  createRoom(input: CreateRoomInput): Promise<{ room: Room; creatorParticipantId: string }>;
   getRoom(roomId: string): Promise<Room | null>;
   getRoomSnapshot(roomId: string): RoomState;
   joinRoom(roomId: string, name: string): Promise<{ participant: Participant }>;

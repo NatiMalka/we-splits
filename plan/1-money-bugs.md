@@ -14,7 +14,7 @@ People pay the wrong amount. Fix these first.
 
 I saw this happen with your real receipt: the app correctly found 42 ₪ of service on the bill, and then still added 31.32 ₪ of tip.
 
-**The solution:** When the receipt already has service on it, start the tip at 0% and write why ("שירות כבר נכלל"). The host can still choose to add a tip if they want — but it should be their choice, not a silent default.
+**The solution:** When the receipt already has service on it, start the tip at 0% and write why ("שירות כבר נכלל"). A tip can still be added — but it should be a choice, not a silent default.
 
 **✅ Done:** The tip now starts at 0% whenever service is detected, with a note on the review screen explaining it. Also added "בלי" (no tip) as a visible button next to 10/12/15% — before, choosing zero meant digging into "אחר". Verified on the burger-bar receipt: 48 ₪ service found, tip 0 ₪, total 526 ₪ instead of 583 ₪.
 
@@ -36,7 +36,7 @@ Worse, you can see the contradiction on one screen: in "כל הסועדים", th
 
 **✅ Done:** Everyone now pays whole shekels, and the parts always add up to the whole.
 
-One change from the original plan: instead of dumping the leftover on whoever opened the room, it goes to whoever was rounded down the most. That's fairer, and it means nobody is quietly penalised for being the host. ₪100 between three people is now 33 + 33 + 34 = ₪100 exactly.
+One change from the original plan: instead of dumping the leftover on whoever opened the room, it goes to whoever was rounded down the most. That's fairer, and it means nobody is quietly penalised for being the one who scanned the receipt. ₪100 between three people is now 33 + 33 + 34 = ₪100 exactly.
 
 The summary screen now shows the full breakdown — items, service, tip, and an "עיגול לשקל שלם" line — so the final number is always explainable. Same in the WhatsApp message.
 
@@ -56,7 +56,7 @@ One detail worth knowing: every phone works this out on its own, so the rounding
 
 **The problem:** It then never uses it. If the AI misreads one price, nothing catches it, and the group happily splits a wrong bill. The whole point of the review screen is to catch AI mistakes, and the one number that could prove there's a mistake is sitting unused.
 
-**The solution:** On the review screen, add up the items and compare to the printed total. If they're more than about 1 ₪ apart, show a small warning with both numbers so the host can check against the paper.
+**The solution:** On the review screen, add up the items and compare to the printed total. If they're more than about 1 ₪ apart, show a small warning with both numbers so it can be checked against the paper receipt.
 
 **✅ Done:** The review screen now compares the two and shows an amber warning when they disagree by 1 ₪ or more — telling you both numbers, the gap, and what probably went wrong. It updates live as you fix prices, so it disappears once the numbers line up.
 

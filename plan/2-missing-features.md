@@ -2,19 +2,23 @@
 
 These are things where the code is already written but there's no button to reach it. Cheap to finish, and they remove real dead ends.
 
+> **Important context added 24 Aug 2026.** I had originally built this around a "host" — one person who organises the bill and collects money from everyone else. **That was wrong.** This app is for a group of diners sorting out a receipt between themselves. Nobody organises, nobody collects, and the restaurant isn't involved at all. Everyone is equal; the only difference is that one person happened to scan the receipt.
+>
+> Two items below were written on the wrong assumption and are now closed. See [PROGRESS.md](PROGRESS.md) for what changed.
+
 ---
 
-## 2.1 The payment link goes nowhere
+## 2.1 The payment link goes nowhere ⏸️ SHELVED
 
-**Priority: HIGH · Effort: very small**
+**Was: HIGH · Now: not relevant · Shelved 24 Aug 2026**
 
-**Now we have:** The host types their Bit / PayBox link on the summary screen, and it saves correctly.
+**Now we have:** The Bit / PayBox link input is switched off.
 
-**The problem:** No guest ever sees it. Not on their screen, not in the WhatsApp message. So the actual "pay me back" step — arguably the point of the whole app — does not work at all.
+**Why it's shelved:** This assumed one person collects money from the others. In reality people settle up however they normally do — Bit, cash, whatever — and the app's job is just to say who owes what. A "pay this person" link doesn't fit.
 
-**The solution:** Show it to guests as a button next to their total ("שלם לדני"), and add it to the WhatsApp text too.
+The code is still there, behind an off switch (`src/lib/featureFlags.ts`), so it can come back quickly if a version aimed at restaurants/businesses ever happens.
 
-📁 `src/screens/SummaryScreen.tsx`, `src/lib/whatsapp.ts`
+📁 `src/lib/featureFlags.ts`
 
 ---
 
@@ -22,7 +26,7 @@ These are things where the code is already written but there's no button to reac
 
 **Priority: HIGH · Effort: small**
 
-**Now we have:** The 6-letter code is shown nice and big on the host's screen. You can join by scanning the QR or opening the link.
+**Now we have:** The 6-letter code is shown nice and big on the room screen. You can join by scanning the QR or opening the link.
 
 **The problem:** There is no field anywhere in the app to type a code in. If the camera won't focus, or WhatsApp breaks the link, or someone just reads the code out loud across the table — the guest has no way in at all. Dead end.
 
@@ -48,7 +52,7 @@ These are things where the code is already written but there's no button to reac
 
 ---
 
-## 2.4 The host can't fix the bill after opening the room
+## 2.4 The bill can't be fixed after the room is open
 
 **Priority: HIGH · Effort: medium**
 
@@ -58,7 +62,7 @@ These are things where the code is already written but there's no button to reac
 
 The save function for this (`updateBillData`) is already written and the security rules already allow it. There's just no button.
 
-**The solution:** Let the host reopen the item editor from the room screen, reusing the same editing components from the review screen.
+**The solution:** Let whoever scanned the receipt reopen the item editor from the room screen, reusing the same editing components from the review screen. (They're the only one allowed to edit — everything else in the app treats everyone equally.)
 
 📁 `src/screens/RoomShareScreen.tsx`, reuse `src/components/review/*`
 
@@ -78,17 +82,17 @@ The save function for this (`updateBillData`) is already written and the securit
 
 ---
 
-## 2.6 The host can't tick people off as paid
+## 2.6 Not everyone could mark themselves as paid ✅ DONE
 
-**Priority: MEDIUM · Effort: small**
+**Priority: MEDIUM · Effort: small · Done 24 Aug 2026**
 
-**Now we have:** Only guests get the "I paid" button. The host is left out on purpose.
+**Now we have:** Everyone marks their own share as settled — including whoever scanned the receipt.
 
-**The problem:** Someone hands the host cash at the table. The host has no way to record it, so the "נותר לגבות" number stays wrong.
+**The problem it fixed:** The "I paid" button was hidden from the person who created the room, because the app assumed they were collecting rather than paying. And the summary showed them a "נותר לגבות" (remaining to collect) figure, which framed them as a debt collector.
 
-**The solution:** Let the host mark anyone as paid.
+**What was done:** Removed the collector idea entirely. The "מארח" badge is gone, everyone gets the same "שילמתי" button, and "נותר לגבות" was replaced with a neutral counter: *"2 מתוך 5 סימנו ששילמו"* plus the amount still outstanding. Someone who claimed nothing isn't counted, so they can't block the "all settled" state.
 
-📁 `src/screens/SummaryScreen.tsx`, `src/components/summary/AllParticipantsSummary.tsx`
+📁 `src/screens/SummaryScreen.tsx`, `src/components/summary/SettleUpCard.tsx`, `src/lib/calc/splitEngine.ts`
 
 ---
 
@@ -100,7 +104,7 @@ The save function for this (`updateBillData`) is already written and the securit
 
 **The problem:** A guest joins with a typo in their name, or joins the wrong room by mistake. They stay in the list permanently, and so do their item picks — which affects everyone else's share.
 
-**The solution:** Let the host remove a participant. Needs a small security-rules change too.
+**The solution:** Let whoever scanned the receipt remove a participant. Needs a small security-rules change too.
 
 📁 `src/store/*`, `firestore.rules`
 

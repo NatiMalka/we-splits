@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { computeBillClaimProgress, computeParticipantTotals, computeUnclaimedAmount, computeUnpaidSummary, getItemClaimSummary } from './splitEngine';
+import { computeBillClaimProgress, computeParticipantTotals, computeSettleUpStatus, computeUnclaimedAmount, getItemClaimSummary } from './splitEngine';
 import type { BillItem, Participant, Room } from '../../types';
 
 function item(overrides: Partial<BillItem> = {}): BillItem {
@@ -7,7 +7,7 @@ function item(overrides: Partial<BillItem> = {}): BillItem {
 }
 
 function participant(overrides: Partial<Participant> = {}): Participant {
-  return { id: 'p1', name: 'דני', isHost: false, joinedAt: 0, selections: [], paid: false, ...overrides };
+  return { id: 'p1', name: 'דני', isCreator: false, joinedAt: 0, selections: [], paid: false, ...overrides };
 }
 
 function room(overrides: Partial<Room> = {}): Room {
@@ -310,35 +310,58 @@ describe('computeBillClaimProgress', () => {
   });
 });
 
-describe('computeUnpaidSummary', () => {
+describe('computeSettleUpStatus', () => {
   const items = [item({ id: 'i1', quantity: 1, price: 100 }), item({ id: 'i2', quantity: 1, price: 50 })];
 
-  it('excludes the host from the remaining amount even if unpaid', () => {
+  // Everyone is equal in this app — the person who scanned the receipt settles
+  // their own share like anybody else, and nobody is "collecting".
+  it('counts the room creator like everyone else', () => {
     const r = room({
+      hostId: 'scanner',
       billData: { restaurantName: null, currency: 'ILS', serviceFee: 0, rawTotal: 150, items },
       settings: { defaultTipPercentage: 0, includeServiceInSplit: false },
       participants: {
-        host: participant({ id: 'host', isHost: true, paid: false, selections: [{ itemId: 'i1', units: 1 }] }),
+        scanner: participant({ id: 'scanner', isCreator: true, paid: false, selections: [{ itemId: 'i1', units: 1 }] }),
       },
     });
-    const totals = computeParticipantTotals(r);
-    expect(computeUnpaidSummary(r, totals).remainingAmount).toBe(0);
+    const status = computeSettleUpStatus(r, computeParticipantTotals(r));
+    expect(status.unpaidAmount).toBe(100);
+    expect(status.unpaidParticipantIds).toEqual(['scanner']);
+    expect(status.owingCount).toBe(1);
+    expect(status.paidCount).toBe(0);
   });
 
-  it('sums totals only for non-host participants who have not marked themselves paid', () => {
+  it('only counts what is still unsettled', () => {
     const r = room({
+      hostId: 'a',
       billData: { restaurantName: null, currency: 'ILS', serviceFee: 0, rawTotal: 150, items },
       settings: { defaultTipPercentage: 0, includeServiceInSplit: false },
       participants: {
-        host: participant({ id: 'host', isHost: true, selections: [] }),
-        paidGuest: participant({ id: 'paidGuest', paid: true, selections: [{ itemId: 'i1', units: 1 }] }),
-        unpaidGuest: participant({ id: 'unpaidGuest', paid: false, selections: [{ itemId: 'i2', units: 1 }] }),
+        a: participant({ id: 'a', isCreator: true, paid: true, selections: [{ itemId: 'i1', units: 1 }] }),
+        b: participant({ id: 'b', paid: false, selections: [{ itemId: 'i2', units: 1 }] }),
       },
     });
-    const totals = computeParticipantTotals(r);
-    const summary = computeUnpaidSummary(r, totals);
-    expect(summary.remainingAmount).toBe(50);
-    expect(summary.unpaidParticipantIds).toEqual(['unpaidGuest']);
+    const status = computeSettleUpStatus(r, computeParticipantTotals(r));
+    expect(status.unpaidAmount).toBe(50);
+    expect(status.unpaidParticipantIds).toEqual(['b']);
+    expect(status.paidCount).toBe(1);
+    expect(status.owingCount).toBe(2);
+  });
+
+  it('ignores people who claimed nothing, so they cannot block "all settled"', () => {
+    const r = room({
+      hostId: 'a',
+      billData: { restaurantName: null, currency: 'ILS', serviceFee: 0, rawTotal: 100, items: [items[0]] },
+      settings: { defaultTipPercentage: 0, includeServiceInSplit: false },
+      participants: {
+        a: participant({ id: 'a', isCreator: true, paid: true, selections: [{ itemId: 'i1', units: 1 }] }),
+        watcher: participant({ id: 'watcher', paid: false, selections: [] }),
+      },
+    });
+    const status = computeSettleUpStatus(r, computeParticipantTotals(r));
+    expect(status.owingCount).toBe(1);
+    expect(status.paidCount).toBe(1);
+    expect(status.unpaidAmount).toBe(0);
   });
 });
 

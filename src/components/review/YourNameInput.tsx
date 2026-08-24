@@ -1,14 +1,14 @@
 import { TextInput } from '../ui/TextInput';
 
-interface HostNameInputProps {
+interface YourNameInputProps {
   value: string;
   onChange: (value: string) => void;
 }
 
-export function HostNameInput({ value, onChange }: HostNameInputProps) {
+export function YourNameInput({ value, onChange }: YourNameInputProps) {
   return (
     <TextInput
-      id="host-name"
+      id="creator-name"
       label="השם שלך"
       placeholder="לדוגמה: דני"
       value={value}

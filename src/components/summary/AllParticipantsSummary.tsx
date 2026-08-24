@@ -8,7 +8,6 @@ interface ParticipantSummaryRow {
   participantId: string;
   name: string;
   total: number;
-  isHost: boolean;
   paid: boolean;
 }
 
@@ -32,13 +31,10 @@ export function AllParticipantsSummary({ rows }: { rows: ParticipantSummaryRow[]
             <div key={row.participantId} className="flex items-center justify-between text-sm">
               <div className="flex items-center gap-2">
                 <span className="text-brand-sand/70">{row.name}</span>
-                {row.isHost ? (
-                  <Badge>מארח</Badge>
-                ) : row.paid ? (
-                  <Badge tone="teal">שולם</Badge>
-                ) : (
-                  <Badge>טרם שולם</Badge>
-                )}
+                {/* Everyone is treated the same — no organiser, no exemptions.
+                    Someone who claimed nothing simply has nothing to settle. */}
+                {row.total > 0 &&
+                  (row.paid ? <Badge tone="teal">שולם</Badge> : <Badge>טרם שולם</Badge>)}
               </div>
               <span className="font-medium text-brand-sand">{formatCurrency(row.total)}</span>
             </div>

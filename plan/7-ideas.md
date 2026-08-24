@@ -24,7 +24,7 @@ A "חלקו שווה בשווה" button would cover a very common real-world sit
 
 Why it's useful: when someone says "no way my salad was 54 shekels", you can pull up the actual receipt on the spot instead of arguing. It also builds trust in the AI reading — people can check it themselves.
 
-Note: storing images needs Firebase Storage (there's a free tier). A cheaper first version could keep the photo only on the host's phone.
+Note: storing images needs Firebase Storage (there's a free tier). A cheaper first version could keep the photo only on the phone that scanned it.
 
 ---
 
@@ -32,9 +32,7 @@ Note: storing images needs Firebase Storage (there's a free tier). A cheaper fir
 
 **Value: MEDIUM-HIGH · Effort: small**
 
-**The idea:** Right now each person copies their own total separately. Instead, let the host send one WhatsApp message listing what everybody owes.
-
-Pairs naturally with fixing the payment link (see `2-missing-features.md`), so the message could include the Bit link too.
+**The idea:** Right now each person copies their own total separately. Instead, let anyone send one WhatsApp message listing what everybody owes — handy for posting into the group chat once.
 
 ---
 

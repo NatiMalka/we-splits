@@ -3,14 +3,14 @@ import type { BillData, BillItem } from '../types';
 
 interface DraftState {
   billData: BillData | null;
-  hostName: string;
+  creatorName: string;
   tipPercentage: number;
   includeServiceInSplit: boolean;
 }
 
 type DraftAction =
   | { type: 'SET_BILL_DATA'; billData: BillData; includeServiceInSplit: boolean }
-  | { type: 'SET_HOST_NAME'; name: string }
+  | { type: 'SET_CREATOR_NAME'; name: string }
   | { type: 'SET_TIP_PERCENTAGE'; tip: number }
   | { type: 'SET_INCLUDE_SERVICE'; include: boolean }
   | { type: 'UPDATE_ITEM'; item: BillItem }
@@ -23,7 +23,7 @@ export const DEFAULT_TIP_PERCENTAGE = 12;
 /**
  * Israeli receipts often already carry a דמי שירות line. Tipping on top of that
  * charges the table twice, so a bill that already includes service starts at 0%
- * and the host adds a tip only if they actually mean to.
+ * and a tip is added only if someone actually means to.
  */
 export function defaultTipFor(billData: BillData): number {
   return billData.serviceFee > 0 ? 0 : DEFAULT_TIP_PERCENTAGE;
@@ -31,7 +31,7 @@ export function defaultTipFor(billData: BillData): number {
 
 const initialState: DraftState = {
   billData: null,
-  hostName: '',
+  creatorName: '',
   tipPercentage: DEFAULT_TIP_PERCENTAGE,
   includeServiceInSplit: false,
 };
@@ -45,8 +45,8 @@ function reducer(state: DraftState, action: DraftAction): DraftState {
         tipPercentage: defaultTipFor(action.billData),
         includeServiceInSplit: action.includeServiceInSplit,
       };
-    case 'SET_HOST_NAME':
-      return { ...state, hostName: action.name };
+    case 'SET_CREATOR_NAME':
+      return { ...state, creatorName: action.name };
     case 'SET_TIP_PERCENTAGE':
       return { ...state, tipPercentage: action.tip };
     case 'SET_INCLUDE_SERVICE':
@@ -78,7 +78,7 @@ function reducer(state: DraftState, action: DraftAction): DraftState {
 
 interface DraftBillContextValue extends DraftState {
   setBillData: (billData: BillData, includeServiceInSplit: boolean) => void;
-  setHostName: (name: string) => void;
+  setCreatorName: (name: string) => void;
   setTipPercentage: (tip: number) => void;
   setIncludeServiceInSplit: (include: boolean) => void;
   updateItem: (item: BillItem) => void;
@@ -97,7 +97,7 @@ export function DraftBillProvider({ children }: { children: ReactNode }) {
       ...state,
       setBillData: (billData, includeServiceInSplit) =>
         dispatch({ type: 'SET_BILL_DATA', billData, includeServiceInSplit }),
-      setHostName: (name) => dispatch({ type: 'SET_HOST_NAME', name }),
+      setCreatorName: (name) => dispatch({ type: 'SET_CREATOR_NAME', name }),
       setTipPercentage: (tip) => dispatch({ type: 'SET_TIP_PERCENTAGE', tip }),
       setIncludeServiceInSplit: (include) => dispatch({ type: 'SET_INCLUDE_SERVICE', include }),
       updateItem: (item) => dispatch({ type: 'UPDATE_ITEM', item }),

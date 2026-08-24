@@ -26,7 +26,7 @@ const TEARDOWN_GRACE_MS = 4000;
 
 const LOADING_STATE: RoomState = { status: 'loading' };
 
-type RawParticipant = Omit<Participant, 'isHost'>;
+type RawParticipant = Omit<Participant, 'isCreator'>;
 type RoomFields = Omit<Room, 'participants'>;
 
 interface RoomSubscription {
@@ -98,7 +98,7 @@ export class FirestoreRoomStore implements RoomStore {
     const hostId = sub.roomFields.hostId;
     const participants: Record<string, Participant> = {};
     for (const [id, raw] of Object.entries(sub.participants)) {
-      participants[id] = { ...raw, isHost: id === hostId };
+      participants[id] = { ...raw, isCreator: id === hostId };
     }
 
     this.setState(roomId, { status: 'ready', room: { ...sub.roomFields, participants } });
@@ -190,7 +190,7 @@ export class FirestoreRoomStore implements RoomStore {
     };
   }
 
-  async createRoom(input: CreateRoomInput): Promise<{ room: Room; hostParticipantId: string }> {
+  async createRoom(input: CreateRoomInput): Promise<{ room: Room; creatorParticipantId: string }> {
     const uid = requireUid();
 
     let roomId = generateRoomCode();
@@ -204,7 +204,7 @@ export class FirestoreRoomStore implements RoomStore {
     const expiresAtTs = Timestamp.fromMillis(expiresAt);
 
     const roomRef = doc(db, 'rooms', roomId);
-    const hostRef = doc(db, 'rooms', roomId, 'participants', uid);
+    const creatorRef = doc(db, 'rooms', roomId, 'participants', uid);
 
     const batch = writeBatch(db);
     batch.set(roomRef, {
@@ -216,9 +216,10 @@ export class FirestoreRoomStore implements RoomStore {
       billData: input.billData,
       settings: input.settings,
     });
-    batch.set(hostRef, {
+    batch.set(creatorRef, {
       id: uid,
-      name: input.hostName,
+      name: input.creatorName,
+      // Vestigial stored field: rules still allow the key, but nothing reads it.
       isHost: true,
       joinedAt: createdAtTs,
       selections: [],
@@ -236,10 +237,10 @@ export class FirestoreRoomStore implements RoomStore {
       billData: input.billData,
       settings: input.settings,
       participants: {
-        [uid]: { id: uid, name: input.hostName, isHost: true, joinedAt: createdAt, selections: [], paid: false },
+        [uid]: { id: uid, name: input.creatorName, isCreator: true, joinedAt: createdAt, selections: [], paid: false },
       },
     };
-    return { room, hostParticipantId: uid };
+    return { room, creatorParticipantId: uid };
   }
 
   async getRoom(roomId: string): Promise<Room | null> {
@@ -251,7 +252,7 @@ export class FirestoreRoomStore implements RoomStore {
     const participants: Record<string, Participant> = {};
     participantsSnap.forEach((docSnap) => {
       const raw = parseParticipantDoc(docSnap.id, docSnap.data());
-      participants[docSnap.id] = { ...raw, isHost: docSnap.id === roomFields.hostId };
+      participants[docSnap.id] = { ...raw, isCreator: docSnap.id === roomFields.hostId };
     });
 
     return { ...roomFields, participants };
@@ -270,6 +271,7 @@ export class FirestoreRoomStore implements RoomStore {
       {
         id: uid,
         name,
+        // Vestigial stored field kept for rule compatibility; never read back.
         isHost: uid === roomFields.hostId,
         joinedAt: Timestamp.fromMillis(joinedAt),
         selections: [],
@@ -282,7 +284,7 @@ export class FirestoreRoomStore implements RoomStore {
     const participant: Participant = {
       id: uid,
       name,
-      isHost: uid === roomFields.hostId,
+      isCreator: uid === roomFields.hostId,
       joinedAt,
       selections: [],
       paid: false,

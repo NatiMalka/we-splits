@@ -15,11 +15,39 @@ What we've done from the plan so far. Newest at the top.
 | Phase | Status | Done |
 |---|---|---|
 | **Phase 1 — Safety net & wrong money** | ✅ **Complete** | **5 of 5** |
-| Phase 2 — Make it actually work | ⏳ Not started | 0 of 6 |
+| Phase 2 — Make it actually work | ⏳ Not started | 0 of 5 |
 | Phase 3 — Lock the doors | ⏳ Not started | 0 of 5 |
 | Phase 4 — Make it feel good | ⏳ Not started | 0 of 7 |
 | Phase 5 — Faster and offline | ⏳ Not started | 0 of 5 |
 | Phase 6 — Nice to have | ⏳ Not started | 0 of 4 |
+
+---
+
+## 24 Aug 2026 — product model corrected ⚠️
+
+### ✅ There is no "host" — everyone is equal
+
+You pointed out that I'd built this around the wrong idea. I had assumed **one person organises the bill and collects money from everyone else**. That's not what this app is.
+
+**What it actually is:** a tool for the **diners** to sort out a receipt between themselves. Nobody organises, nobody collects, and the restaurant isn't involved at all. Everyone is equal — the only difference is that one person happened to scan the receipt.
+
+**What I changed:**
+
+| Before | Now |
+|---|---|
+| "מארח" badge next to one person's name | Gone — no labels, everyone the same |
+| "נותר לגבות" (remaining to collect) | "טרם שולם — 2 מתוך 5 סימנו ששילמו" — neutral, no collector |
+| Only guests could mark themselves paid | Everyone can, including whoever scanned the receipt |
+| The scanner was excluded from the totals | Everyone counts equally; people who claimed nothing simply aren't counted |
+| Bit / PayBox payment link | Switched off behind a flag — kept in the code for a possible business version later |
+
+**Also renamed things in the code**, so this misunderstanding doesn't creep back in: `isHost` → `isCreator`, `hostName` → `creatorName`, `computeUnpaidSummary` → `computeSettleUpStatus`, and the UI now says "can edit the bill" rather than "is host".
+
+One leftover worth knowing: the stored database field is still called `hostId`. I deliberately left that name alone — it's referenced by name in the security rules, so renaming it would break every existing room for no real gain. It's documented in the code as "whoever scanned the receipt".
+
+**What stayed:** whoever scanned the receipt is still the only one who can edit the bill items (your call). That's a permission, not a status — and it's what stops anyone in the room from silently changing prices for everybody.
+
+📄 See [2-missing-features.md](2-missing-features.md) items 2.1 and 2.6
 
 ---
 
@@ -43,7 +71,7 @@ Tested by changing a price from 68 to 20 → *"הפריטים למעלה מסת�
 
 **Now:** Everyone pays whole shekels and the total always matches the bill. ₪100 between three is 33 + 33 + 34.
 
-**One improvement on the original plan:** rather than dumping the leftover agorot on whoever opened the room, it now goes to whoever was rounded down the most. Fairer, and the host isn't quietly penalised for hosting.
+**One improvement on the original plan:** rather than dumping the leftover agorot on whoever opened the room, it now goes to whoever was rounded down the most. Fairer, and nobody is quietly penalised for being the one who scanned the receipt.
 
 The summary now shows the full breakdown — items, service, tip, and an "עיגול לשקל שלם" line — so the final number is always explainable rather than appearing out of nowhere. Same in the WhatsApp message.
 
@@ -122,7 +150,6 @@ untouched and still works exactly as before.
 
 | Item | What it is | Where |
 |---|---|---|
-| ⏳ 2.1 | Show the payment link to guests — right now nobody sees it | [2-missing-features.md](2-missing-features.md) |
 | ⏳ 2.3 | Share to WhatsApp in one tap instead of copy-and-paste | [2-missing-features.md](2-missing-features.md) |
 | ⏳ 2.2 | Let people type a room code | [2-missing-features.md](2-missing-features.md) |
 | ⏳ 2.5 | Back button on the summary screen | [2-missing-features.md](2-missing-features.md) |

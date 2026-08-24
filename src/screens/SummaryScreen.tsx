@@ -9,7 +9,7 @@ import { CopyToWhatsAppButton } from '../components/summary/CopyToWhatsAppButton
 import { HostPaymentLinkInput } from '../components/summary/HostPaymentLinkInput';
 import { AllParticipantsSummary } from '../components/summary/AllParticipantsSummary';
 import { PaidToggleButton } from '../components/summary/PaidToggleButton';
-import { RemainingToCollectCard } from '../components/summary/RemainingToCollectCard';
+import { SettleUpCard } from '../components/summary/SettleUpCard';
 import { UnclaimedAmountCard } from '../components/summary/UnclaimedAmountCard';
 import { RoomNotFoundState } from '../components/join/RoomNotFoundState';
 import { Spinner } from '../components/ui/Spinner';
@@ -18,7 +18,8 @@ import { useAuthUid } from '../hooks/useAuthUid';
 import { useCalculations } from '../hooks/useCalculations';
 import { useRoomStoreContext } from '../store/RoomStoreContext';
 import { buildSummaryShareText } from '../lib/whatsapp';
-import { computeUnclaimedAmount, computeUnpaidSummary } from '../lib/calc/splitEngine';
+import { computeUnclaimedAmount, computeSettleUpStatus } from '../lib/calc/splitEngine';
+import { FEATURES } from '../lib/featureFlags';
 import type { Room } from '../types';
 
 export function SummaryScreen() {
@@ -63,7 +64,9 @@ export function SummaryScreen() {
   const participantId = uid;
   const me = room.participants[participantId];
   const myTotal = totals.find((t) => t.participantId === participantId);
-  const isHost = participantId === room.hostId;
+  // Not a "host" — nobody hosts anything here. This is only "did I scan the
+  // receipt", which is what grants permission to edit the bill items.
+  const canEditBill = participantId === room.hostId;
 
   const allTotals = totals.map((t) => {
     const participant = room.participants[t.participantId];
@@ -71,12 +74,11 @@ export function SummaryScreen() {
       participantId: t.participantId,
       name: participant?.name ?? '?',
       total: t.total,
-      isHost: t.participantId === room.hostId,
       paid: participant?.paid ?? false,
     };
   });
 
-  const unpaidSummary = computeUnpaidSummary(room, totals);
+  const settleUp = computeSettleUpStatus(room, totals);
   const unclaimedAmount = computeUnclaimedAmount(room);
 
   async function handlePaymentLinkChange(value: string) {
@@ -132,16 +134,20 @@ export function SummaryScreen() {
 
           {me && myTotal && <CopyToWhatsAppButton text={buildSummaryShareText(me.name, room.billData.restaurantName, myTotal)} />}
 
-          {!isHost && me && <PaidToggleButton paid={me.paid} onToggle={handleTogglePaid} />}
-
-          {isHost && (
-            <RemainingToCollectCard
-              remainingAmount={unpaidSummary.remainingAmount}
-              unpaidCount={unpaidSummary.unpaidParticipantIds.length}
-            />
+          {/* Everyone marks their own — including whoever scanned the receipt. */}
+          {me && myTotal && myTotal.total > 0 && (
+            <PaidToggleButton paid={me.paid} onToggle={handleTogglePaid} />
           )}
 
-          {isHost && <HostPaymentLinkInput value={paymentLink} onChange={handlePaymentLinkChange} />}
+          <SettleUpCard
+            unpaidAmount={settleUp.unpaidAmount}
+            paidCount={settleUp.paidCount}
+            owingCount={settleUp.owingCount}
+          />
+
+          {FEATURES.paymentLink && canEditBill && (
+            <HostPaymentLinkInput value={paymentLink} onChange={handlePaymentLinkChange} />
+          )}
 
           <AllParticipantsSummary rows={allTotals} />
         </div>

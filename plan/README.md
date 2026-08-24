@@ -25,7 +25,7 @@ If you only read one section, read this one.
 
 **1. ~~The project isn't saved in git.~~** ✅ **DONE** — now on [GitHub](https://github.com/NatiMalka/we-splits), secrets kept out. → [6.1](6-reliability.md)
 
-**2. The app charges a tip on bills that already include service.** Your real receipt had 42 ₪ of service on it, and the app still added 31.32 ₪ of tip on top. Everyone at the table overpays by about 12%. → [1.1](1-money-bugs.md)
+**2. ~~The app charges a tip on bills that already include service.~~** ✅ **DONE** — bills with service now start at 0% tip. → [1.1](1-money-bugs.md)
 
 **3. One guest can change what everyone else owes.** The security guard checks a guest's selections the first time they save, and never again. Someone can send a fake number from their own phone and quietly shift everybody's total. → [4.1](4-security.md)
 
@@ -37,16 +37,16 @@ If you only read one section, read this one.
 
 ## Suggested order
 
-### Phase 1 — Safety net and wrong money
-*About half a day. Do this one first.*
+### Phase 1 — Safety net and wrong money ✅ COMPLETE
+*Done 24 Aug 2026 — see [PROGRESS.md](PROGRESS.md).*
 
 Nothing here adds features. It protects the work and stops the app from taking people's money incorrectly.
 
 1. ✅ **DONE** — Put the project in git → [6.1](6-reliability.md)
-2. Add a crash safety net so errors don't blank the screen → [6.2](6-reliability.md)
-3. Don't add a tip when the receipt already includes service → [1.1](1-money-bugs.md)
-4. Fix the missing agorot when rounding → [1.2](1-money-bugs.md)
-5. Warn when the items don't add up to the receipt's printed total → [1.3](1-money-bugs.md)
+2. ✅ **DONE** — Crash safety net so errors don't blank the screen → [6.2](6-reliability.md)
+3. ✅ **DONE** — Don't add a tip when the receipt already includes service → [1.1](1-money-bugs.md)
+4. ✅ **DONE** — Fix the missing agorot when rounding → [1.2](1-money-bugs.md)
+5. ✅ **DONE** — Warn when items don't add up to the receipt's printed total → [1.3](1-money-bugs.md)
 
 ### Phase 2 — Make it actually work
 *About a day. Removes the dead ends people can hit today.*

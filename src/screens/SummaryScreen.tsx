@@ -99,6 +99,30 @@ export function SummaryScreen() {
               {myTotal.itemBreakdown.map((line, i) => (
                 <SummaryItemRow key={line.itemId} name={line.itemName} units={line.units} amount={line.amount} index={i} />
               ))}
+              {myTotal.serviceShare > 0 && (
+                <SummaryItemRow
+                  name="דמי שירות"
+                  units={1}
+                  amount={myTotal.serviceShare}
+                  index={myTotal.itemBreakdown.length}
+                />
+              )}
+              {myTotal.tipAmount > 0 && (
+                <SummaryItemRow
+                  name={`טיפ (${myTotal.tipPercentageUsed}%)`}
+                  units={1}
+                  amount={myTotal.tipAmount}
+                  index={myTotal.itemBreakdown.length + 1}
+                />
+              )}
+              {Math.abs(myTotal.roundingAdjustment) >= 0.01 && (
+                <SummaryItemRow
+                  name="עיגול לשקל שלם"
+                  units={1}
+                  amount={myTotal.roundingAdjustment}
+                  index={myTotal.itemBreakdown.length + 2}
+                />
+              )}
             </GlassCard>
           )}
 

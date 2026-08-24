@@ -31,8 +31,52 @@ export interface ParticipantTotal {
   subtotal: number;
   serviceShare: number;
   tipAmount: number;
+  /** Exact share before whole-shekel rounding — keeps the arithmetic auditable. */
+  exactTotal: number;
+  /** What this person actually pays: `exactTotal` rounded to whole shekels. */
   total: number;
+  /** `total - exactTotal`. Non-zero when rounding moved this person's amount. */
+  roundingAdjustment: number;
   tipPercentageUsed: number;
+}
+
+/**
+ * Turns exact fractional shares into whole shekels that still add up to the bill.
+ *
+ * Nobody pays fractional agorot, but naively rounding each person independently
+ * makes the parts stop matching the whole (₪100 split three ways displays as
+ * 33.33 × 3 = ₪99.99). This uses the largest-remainder method: everyone gets
+ * their floor, then the leftover shekels go to whoever was rounded down hardest.
+ *
+ * Every device computes this independently from the same room data, so the
+ * tie-break has to be deterministic — hence sorting by participant id, never by
+ * object key order.
+ */
+function allocateWholeShekels(exact: { participantId: string; exactTotal: number }[]): Map<string, number> {
+  const exactSum = exact.reduce((sum, e) => sum + e.exactTotal, 0);
+  const target = Math.round(exactSum);
+
+  const floors = exact.map((e) => ({
+    participantId: e.participantId,
+    floor: Math.floor(e.exactTotal),
+    fraction: e.exactTotal - Math.floor(e.exactTotal),
+  }));
+
+  const floorSum = floors.reduce((sum, f) => sum + f.floor, 0);
+  let leftover = Math.max(0, target - floorSum);
+
+  const byLargestFraction = [...floors].sort(
+    (a, b) => b.fraction - a.fraction || a.participantId.localeCompare(b.participantId),
+  );
+
+  const allocated = new Map<string, number>(floors.map((f) => [f.participantId, f.floor]));
+  for (const entry of byLargestFraction) {
+    if (leftover <= 0) break;
+    allocated.set(entry.participantId, (allocated.get(entry.participantId) ?? 0) + 1);
+    leftover--;
+  }
+
+  return allocated;
 }
 
 export function computeParticipantTotals(
@@ -74,9 +118,8 @@ export function computeParticipantTotals(
 
   const claimedSubtotalTotal = Array.from(perParticipantSubtotal.values()).reduce((a, b) => a + b, 0);
 
-  return participants.map((participant) => {
+  const exactTotals = participants.map((participant) => {
     const subtotal = perParticipantSubtotal.get(participant.id) ?? 0;
-    const breakdown = perParticipantBreakdown.get(participant.id) ?? [];
 
     let serviceShare = 0;
     if (room.settings.includeServiceInSplit && room.billData.serviceFee > 0 && claimedSubtotalTotal > 0) {
@@ -85,16 +128,31 @@ export function computeParticipantTotals(
 
     const tipPercentageUsed = participant.customTipPercentage ?? room.settings.defaultTipPercentage;
     const tipAmount = subtotal * (tipPercentageUsed / 100);
-    const total = subtotal + serviceShare + tipAmount;
 
     return {
       participantId: participant.id,
-      itemBreakdown: breakdown,
       subtotal,
       serviceShare,
       tipAmount,
-      total,
       tipPercentageUsed,
+      exactTotal: subtotal + serviceShare + tipAmount,
+    };
+  });
+
+  const rounded = allocateWholeShekels(exactTotals);
+
+  return exactTotals.map((entry) => {
+    const total = rounded.get(entry.participantId) ?? Math.round(entry.exactTotal);
+    return {
+      participantId: entry.participantId,
+      itemBreakdown: perParticipantBreakdown.get(entry.participantId) ?? [],
+      subtotal: entry.subtotal,
+      serviceShare: entry.serviceShare,
+      tipAmount: entry.tipAmount,
+      exactTotal: entry.exactTotal,
+      total,
+      roundingAdjustment: total - entry.exactTotal,
+      tipPercentageUsed: entry.tipPercentageUsed,
     };
   });
 }

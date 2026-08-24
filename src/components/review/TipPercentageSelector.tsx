@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { motion } from 'motion/react';
 
-const PRESETS = [10, 12, 15];
+// 0 is a first-class option: bills that already include שירות default to it,
+// so it needs to be visible rather than buried behind "אחר".
+const PRESETS = [0, 10, 12, 15];
 
 interface TipPercentageSelectorProps {
   value: number;
@@ -31,7 +33,7 @@ export function TipPercentageSelector({ value, onChange }: TipPercentageSelector
             />
           )}
           <span className={`relative ${!customMode && value === preset ? 'text-brand-charcoal' : 'text-brand-sand/70'}`}>
-            {preset}%
+            {preset === 0 ? 'בלי' : `${preset}%`}
           </span>
         </button>
       ))}

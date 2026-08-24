@@ -25,9 +25,9 @@ Of everything in these documents, this is the one I'd fix first, and it takes tw
 
 ---
 
-## 6.2 One error blanks the whole app
+## 6.2 One error blanks the whole app ✅ DONE
 
-**Priority: HIGH · Effort: very small**
+**Priority: HIGH · Effort: very small · Done 24 Aug 2026**
 
 **Now we have:** No safety net anywhere in the app.
 
@@ -35,7 +35,9 @@ Of everything in these documents, this is the one I'd fix first, and it takes tw
 
 **The solution:** Add a catch-all screen: "משהו נשבר — נסו לרענן", with a button.
 
-📁 `src/main.tsx`
+**✅ Done:** Added `ErrorBoundary` wrapping the whole app. Shows a styled Hebrew message with a "רענן את הדף" button instead of a blank page, and writes the real error to the browser log so it can still be diagnosed. Verified by deliberately crashing a screen — the fallback appeared correctly, then the test crash was removed.
+
+📁 `src/components/layout/ErrorBoundary.tsx`, `src/main.tsx`
 
 ---
 

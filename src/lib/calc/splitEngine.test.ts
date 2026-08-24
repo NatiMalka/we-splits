@@ -166,6 +166,121 @@ describe('computeParticipantTotals', () => {
   });
 });
 
+describe('whole-shekel rounding', () => {
+  function threeWaySplitOf(price: number) {
+    return room({
+      billData: {
+        restaurantName: null,
+        currency: 'ILS',
+        serviceFee: 0,
+        rawTotal: price,
+        items: [item({ id: 'shared', quantity: 1, price })],
+      },
+      settings: { defaultTipPercentage: 0, includeServiceInSplit: false },
+      participants: {
+        a: participant({ id: 'a', selections: [{ itemId: 'shared', units: 1 }] }),
+        b: participant({ id: 'b', selections: [{ itemId: 'shared', units: 1 }] }),
+        c: participant({ id: 'c', selections: [{ itemId: 'shared', units: 1 }] }),
+      },
+    });
+  }
+
+  it('gives whole shekels that still add up to the bill (the 100/3 case)', () => {
+    const totals = computeParticipantTotals(threeWaySplitOf(100));
+
+    for (const t of totals) {
+      expect(Number.isInteger(t.total)).toBe(true);
+      expect(t.exactTotal).toBeCloseTo(100 / 3);
+    }
+    // The whole point: 33 + 33 + 34 = 100, not 33.33 × 3 = 99.99.
+    expect(totals.reduce((sum, t) => sum + t.total, 0)).toBe(100);
+    expect(totals.map((t) => t.total).sort()).toEqual([33, 33, 34]);
+  });
+
+  it('reports how much rounding moved each person', () => {
+    const totals = computeParticipantTotals(threeWaySplitOf(100));
+    for (const t of totals) {
+      expect(t.roundingAdjustment).toBeCloseTo(t.total - t.exactTotal);
+      expect(Math.abs(t.roundingAdjustment)).toBeLessThan(1);
+    }
+    // Adjustments cancel out across the table.
+    expect(totals.reduce((sum, t) => sum + t.roundingAdjustment, 0)).toBeCloseTo(0);
+  });
+
+  it('is deterministic regardless of participant order, so every device agrees', () => {
+    const forward = computeParticipantTotals(threeWaySplitOf(100));
+
+    // Same room, participants inserted in the opposite order.
+    const reversed = computeParticipantTotals(
+      room({
+        billData: {
+          restaurantName: null,
+          currency: 'ILS',
+          serviceFee: 0,
+          rawTotal: 100,
+          items: [item({ id: 'shared', quantity: 1, price: 100 })],
+        },
+        settings: { defaultTipPercentage: 0, includeServiceInSplit: false },
+        participants: {
+          c: participant({ id: 'c', selections: [{ itemId: 'shared', units: 1 }] }),
+          b: participant({ id: 'b', selections: [{ itemId: 'shared', units: 1 }] }),
+          a: participant({ id: 'a', selections: [{ itemId: 'shared', units: 1 }] }),
+        },
+      }),
+    );
+
+    const byId = (list: typeof forward) =>
+      Object.fromEntries(list.map((t) => [t.participantId, t.total]));
+    expect(byId(reversed)).toEqual(byId(forward));
+  });
+
+  it('adds up exactly across a messy realistic bill', () => {
+    const items = [
+      item({ id: 'i1', quantity: 1, price: 38 }),
+      item({ id: 'i2', quantity: 2, price: 129 }),
+      item({ id: 'i3', quantity: 3, price: 14 }),
+      item({ id: 'i4', quantity: 1, price: 189 }),
+    ];
+    const r = room({
+      billData: { restaurantName: null, currency: 'ILS', serviceFee: 42, rawTotal: 0, items },
+      settings: { defaultTipPercentage: 12, includeServiceInSplit: true },
+      participants: {
+        a: participant({ id: 'a', selections: [{ itemId: 'i1', units: 1 }, { itemId: 'i4', units: 1 }] }),
+        b: participant({ id: 'b', selections: [{ itemId: 'i2', units: 2 }, { itemId: 'i4', units: 1 }] }),
+        c: participant({ id: 'c', selections: [{ itemId: 'i3', units: 2 }, { itemId: 'i4', units: 1 }] }),
+        d: participant({ id: 'd', selections: [{ itemId: 'i3', units: 1 }] }),
+      },
+    });
+
+    const totals = computeParticipantTotals(r);
+    const exactSum = totals.reduce((sum, t) => sum + t.exactTotal, 0);
+    const roundedSum = totals.reduce((sum, t) => sum + t.total, 0);
+
+    expect(roundedSum).toBe(Math.round(exactSum));
+    totals.forEach((t) => expect(Number.isInteger(t.total)).toBe(true));
+  });
+
+  it('leaves a zero-selection participant at zero', () => {
+    const r = room({
+      billData: {
+        restaurantName: null,
+        currency: 'ILS',
+        serviceFee: 0,
+        rawTotal: 100,
+        items: [item({ id: 'i1', quantity: 1, price: 100 })],
+      },
+      settings: { defaultTipPercentage: 0, includeServiceInSplit: false },
+      participants: {
+        payer: participant({ id: 'payer', selections: [{ itemId: 'i1', units: 1 }] }),
+        idle: participant({ id: 'idle', selections: [] }),
+      },
+    });
+    const totals = computeParticipantTotals(r);
+    expect(totals.find((t) => t.participantId === 'idle')!.total).toBe(0);
+    expect(totals.find((t) => t.participantId === 'payer')!.total).toBe(100);
+  });
+});
+
 describe('computeBillClaimProgress', () => {
   it('reports 0% claimed when nothing has been selected', () => {
     const r = room({

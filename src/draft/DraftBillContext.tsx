@@ -18,10 +18,21 @@ type DraftAction =
   | { type: 'ADD_ITEM'; item: BillItem }
   | { type: 'RESET' };
 
+export const DEFAULT_TIP_PERCENTAGE = 12;
+
+/**
+ * Israeli receipts often already carry a דמי שירות line. Tipping on top of that
+ * charges the table twice, so a bill that already includes service starts at 0%
+ * and the host adds a tip only if they actually mean to.
+ */
+export function defaultTipFor(billData: BillData): number {
+  return billData.serviceFee > 0 ? 0 : DEFAULT_TIP_PERCENTAGE;
+}
+
 const initialState: DraftState = {
   billData: null,
   hostName: '',
-  tipPercentage: 12,
+  tipPercentage: DEFAULT_TIP_PERCENTAGE,
   includeServiceInSplit: false,
 };
 
@@ -31,7 +42,7 @@ function reducer(state: DraftState, action: DraftAction): DraftState {
       return {
         ...state,
         billData: action.billData,
-        tipPercentage: 12,
+        tipPercentage: defaultTipFor(action.billData),
         includeServiceInSplit: action.includeServiceInSplit,
       };
     case 'SET_HOST_NAME':

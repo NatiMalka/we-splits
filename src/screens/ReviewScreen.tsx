@@ -8,6 +8,7 @@ import { ItemList } from '../components/review/ItemList';
 import { AddItemButton } from '../components/review/AddItemButton';
 import { TipPercentageSelector } from '../components/review/TipPercentageSelector';
 import { ServiceFeeBanner } from '../components/review/ServiceFeeBanner';
+import { TotalMismatchWarning } from '../components/review/TotalMismatchWarning';
 import { HostNameInput } from '../components/review/HostNameInput';
 import { ReviewSummaryBar } from '../components/review/ReviewSummaryBar';
 import { useDraftBill } from '../draft/DraftBillContext';
@@ -31,6 +32,14 @@ export function ReviewScreen() {
   const serviceShare = draft.includeServiceInSplit ? draft.billData.serviceFee : 0;
   const tipAmount = subtotal * (draft.tipPercentage / 100);
   const total = subtotal + serviceShare + tipAmount;
+
+  // Cross-check the parsed items against the total printed on the receipt — the
+  // only signal available that the AI misread or dropped a line. Skipped when the
+  // AI couldn't read a total at all (0), which would otherwise always "mismatch".
+  const printedTotal = draft.billData.rawTotal;
+  const parsedTotal = subtotal + draft.billData.serviceFee;
+  const mismatch = printedTotal > 0 ? parsedTotal - printedTotal : 0;
+  const hasMismatch = Math.abs(mismatch) >= 1;
 
   async function handleCreateRoom() {
     if (!draft.billData || !draft.hostName.trim()) return;
@@ -79,6 +88,10 @@ export function ReviewScreen() {
             />
           </GlassCard>
 
+          {hasMismatch && (
+            <TotalMismatchWarning parsedTotal={parsedTotal} printedTotal={printedTotal} />
+          )}
+
           <ServiceFeeBanner
             serviceFee={draft.billData.serviceFee}
             includeInSplit={draft.includeServiceInSplit}
@@ -87,6 +100,11 @@ export function ReviewScreen() {
 
           <GlassCard className="flex flex-col gap-3 p-4">
             <p className="text-sm font-medium text-brand-sand/60">אחוז טיפ</p>
+            {draft.billData.serviceFee > 0 && (
+              <p className="text-xs leading-relaxed text-brand-teal-300">
+                שירות כבר נכלל בחשבון — אין צורך בטיפ נוסף. אפשר להוסיף בכל זאת.
+              </p>
+            )}
             <TipPercentageSelector value={draft.tipPercentage} onChange={draft.setTipPercentage} />
           </GlassCard>
 

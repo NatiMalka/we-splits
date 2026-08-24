@@ -4,9 +4,9 @@ What happens when something goes wrong. Right now the honest answer is usually "
 
 ---
 
-## 6.1 The project is not saved in git ⚠️
+## 6.1 The project is not saved in git ✅ DONE
 
-**Priority: HIGHEST · Effort: 2 minutes**
+**Priority: HIGHEST · Effort: 2 minutes · Done 24 Aug 2026**
 
 **Now we have:** Nothing. There is no version history at all — just the files on your disk.
 
@@ -18,6 +18,8 @@ Of everything in these documents, this is the one I'd fix first, and it takes tw
 - `.env.local` holds your real keys — make sure it's excluded (it currently is, but only by luck, via a wildcard).
 - `billll_g.jpg` in the main folder is a photo of a real receipt. Probably shouldn't be saved into history.
 - Also add `.firebase/` and `.claude/settings.local.json` to the ignore list — neither is covered today.
+
+**✅ Done:** Pushed to [github.com/NatiMalka/we-splits](https://github.com/NatiMalka/we-splits) (`main`, 108 files). `.gitignore` rewritten so secrets are blocked explicitly rather than by luck; the receipt photo, Firebase cache and Claude local settings are all excluded. Verified no secret values were committed, before *and* after pushing. Full details in [PROGRESS.md](PROGRESS.md).
 
 📁 `.gitignore`
 

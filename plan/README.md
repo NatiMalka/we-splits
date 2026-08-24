@@ -8,6 +8,7 @@ Every item in the other files is written the same way: *what we have now → wha
 
 | File | What's inside |
 |---|---|
+| [PROGRESS.md](PROGRESS.md) | **What we've already done.** Updated as we go. |
 | [1-money-bugs.md](1-money-bugs.md) | People pay the wrong amount. Start here. |
 | [2-missing-features.md](2-missing-features.md) | Features that are half-built — the code exists, there's just no button |
 | [3-ui-ux.md](3-ui-ux.md) | Design, usability, accessibility |
@@ -22,7 +23,7 @@ Every item in the other files is written the same way: *what we have now → wha
 
 If you only read one section, read this one.
 
-**1. The project isn't saved in git.** No history, no backup, no undo. One accident and everything is gone. Two minutes to fix. → [6.1](6-reliability.md)
+**1. ~~The project isn't saved in git.~~** ✅ **DONE** — now on [GitHub](https://github.com/NatiMalka/we-splits), secrets kept out. → [6.1](6-reliability.md)
 
 **2. The app charges a tip on bills that already include service.** Your real receipt had 42 ₪ of service on it, and the app still added 31.32 ₪ of tip on top. Everyone at the table overpays by about 12%. → [1.1](1-money-bugs.md)
 
@@ -41,7 +42,7 @@ If you only read one section, read this one.
 
 Nothing here adds features. It protects the work and stops the app from taking people's money incorrectly.
 
-1. Put the project in git → [6.1](6-reliability.md)
+1. ✅ **DONE** — Put the project in git → [6.1](6-reliability.md)
 2. Add a crash safety net so errors don't blank the screen → [6.2](6-reliability.md)
 3. Don't add a tip when the receipt already includes service → [1.1](1-money-bugs.md)
 4. Fix the missing agorot when rounding → [1.2](1-money-bugs.md)

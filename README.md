@@ -4,14 +4,21 @@ A mobile-first Hebrew (RTL) web app for splitting restaurant bills with a group.
 
 **Live app:** https://we-splits.web.app
 
+## Who this is for
+
+The **diners**, splitting a receipt between themselves. There is no host, nobody collects money on anyone's behalf, and the restaurant isn't involved. Everyone in a room is equal — the only asymmetry is that whoever scanned the receipt may edit the item list, so prices can't be changed out from under the group.
+
+A restaurant-facing version is a possible future direction, not a current assumption.
+
 ## Core flow
 
-1. Host photographs or uploads a receipt.
+1. Someone photographs or uploads the receipt.
 2. Gemini Vision extracts items, quantities, prices, and service fee into structured JSON.
-3. Host reviews/edits the extracted items and sets a tip percentage, then creates a room.
-4. Guests join via QR code or link (just a first name, no account).
+3. They review/edit the extracted items and set a tip, then open a room. Bills that already include דמי שירות default to no tip, so the table isn't charged twice.
+4. Everyone else joins via QR code or link (just a first name, no account).
 5. Everyone taps the items they had — shared items split evenly, multi-unit items can be split by exact count.
-6. Live per-person totals (item share + proportional tip), a "still unclaimed" amount so nothing gets forgotten, and a WhatsApp-ready summary.
+6. Live per-person totals (item share + proportional service + tip), rounded to whole shekels so the parts add up to the bill, a "still unclaimed" amount so nothing gets forgotten, and a WhatsApp-ready summary.
+7. Anyone can mark their own share as settled; the room shows how many people are done.
 
 ## Tech stack
 
@@ -67,9 +74,11 @@ VITE_GEMINI_API_KEY=
 
 - **`src/store/RoomStore.ts`** defines the data-access interface; `FirestoreRoomStore` is the real implementation. `LocalRoomStore` (localStorage + BroadcastChannel) still exists as an offline-dev fallback, not currently wired up.
 - Room state is tri-state (`loading | not-found | ready`) via `useRoomState`, since Firestore reads are async — never collapse this back to a bare nullable check.
-- `Participant.isHost` is never trusted from Firestore (a participant could spoof their own doc) — host status is always derived from `room.hostId`.
-- The calculation engine (`src/lib/calc/splitEngine.ts`) is pure and framework-free, fully covered by unit tests.
+- `Participant.isCreator` is never trusted from Firestore (a participant could spoof their own doc) — it's always derived from `room.hostId`. Note the stored field keeps the legacy name `hostId` because `firestore.rules` references it by name; it means "whoever scanned the receipt", and grants only the right to edit bill items.
+- The calculation engine (`src/lib/calc/splitEngine.ts`) is pure and framework-free, fully covered by unit tests. Per-person totals are rounded to whole shekels using the largest-remainder method, deliberately **deterministic** (tie-broken by participant id) because every device computes it independently and must reach the same answer.
+- `src/lib/featureFlags.ts` holds features built but switched off — currently the Bit/PayBox payment link, which doesn't fit the no-collector model.
 - Firestore security rules (`firestore.rules`) are the *only* backend validation layer — there's no server. See the file's comments for the reasoning behind each rule.
+- `plan/` holds a reviewed improvement backlog with a phase-by-phase order and a `PROGRESS.md` tracking what's shipped.
 
 ## Known limitations
 

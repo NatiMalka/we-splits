@@ -21,6 +21,20 @@ What we've done from the plan so far. Newest at the top.
 | Phase 5 — Faster and offline | ⏳ Not started | 0 of 5 |
 | Phase 6 — Nice to have | ⏳ Not started | 0 of 4 |
 
+**Shipped so far:**
+
+| # | What | Doc |
+|---|---|---|
+| 6.1 | Project saved in git, on GitHub, no secrets | [6-reliability.md](6-reliability.md) |
+| 6.2 | Crash safety net — no more blank white screens | [6-reliability.md](6-reliability.md) |
+| 1.1 | No double tipping on bills that include service | [1-money-bugs.md](1-money-bugs.md) |
+| 1.2 | Whole shekels, and the parts add up to the bill | [1-money-bugs.md](1-money-bugs.md) |
+| 1.3 | Warning when items don't match the printed total | [1-money-bugs.md](1-money-bugs.md) |
+| 2.6 | Everyone can mark themselves settled | [2-missing-features.md](2-missing-features.md) |
+| 2.1 | Payment link shelved (wrong model) | [2-missing-features.md](2-missing-features.md) |
+
+Nothing has been deployed — you do all deploys. Everything above is on `main`.
+
 ---
 
 ## 24 Aug 2026 — product model corrected ⚠️
@@ -46,6 +60,12 @@ You pointed out that I'd built this around the wrong idea. I had assumed **one p
 One leftover worth knowing: the stored database field is still called `hostId`. I deliberately left that name alone — it's referenced by name in the security rules, so renaming it would break every existing room for no real gain. It's documented in the code as "whoever scanned the receipt".
 
 **What stayed:** whoever scanned the receipt is still the only one who can edit the bill items (your call). That's a permission, not a status — and it's what stops anyone in the room from silently changing prices for everybody.
+
+**Docs corrected too**, since they were teaching the wrong model:
+- The project's main `README.md` opened by describing a "Host" doing the work. It now has a short *"Who this is for"* section stating plainly that it's for diners, with no host and no collecting.
+- `plan/README.md` carries the same statement at the top.
+- Item **2.1** (payment link) is marked shelved and **2.6** marked done in [2-missing-features.md](2-missing-features.md); the remaining items there no longer say "host".
+- Phase 2 dropped from 6 items to 5, and the "5 things that matter most" list was re-ranked — the payment link left it, and "the bill can't be fixed once the room is open" moved up.
 
 📄 See [2-missing-features.md](2-missing-features.md) items 2.1 and 2.6
 

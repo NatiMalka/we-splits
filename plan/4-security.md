@@ -81,7 +81,7 @@ And because the rules block deleting anything, that broken record can never be r
 
 **Now we have:** Knowing the 6-letter code gets you the whole room: all the items, all the names, who paid.
 
-**The problem:** The guard never checks that you were actually invited. So someone can add themselves to any room without ever going through the join screen. The payment link is readable too.
+**The problem:** The guard never checks that you were actually invited. So someone can add themselves to any room without ever going through the join screen.
 
 To be fair: the information isn't very sensitive — first names and the price of a salad. For family use this is fine.
 

@@ -1,4 +1,4 @@
-import type { BillData, Participant, Room, RoomSettings, Selection } from '../types';
+import type { BillData, Participant, Room, RoomSettings, RoomStatus, Selection } from '../types';
 
 export interface CreateRoomInput {
   billData: BillData;
@@ -38,5 +38,15 @@ export interface RoomStore {
   updateParticipantPaidStatus(roomId: string, participantId: string, paid: boolean): Promise<void>;
   updateBillData(roomId: string, billData: BillData): Promise<void>;
   updateRoomSettings(roomId: string, settings: Partial<RoomSettings>): Promise<void>;
+  /**
+   * Removes a participant and, with them, their item claims — which changes what
+   * everyone else owes on any dish they were sharing.
+   *
+   * Rules allow this for the participant themselves (leaving) or for whoever
+   * scanned the receipt (removing a duplicate/mistaken join).
+   */
+  removeParticipant(roomId: string, participantId: string): Promise<void>;
+  /** Marks the bill finished. Everyone in the room is switched to the closing screen. */
+  setRoomStatus(roomId: string, status: RoomStatus): Promise<void>;
   subscribeToRoom(roomId: string, callback: (state: RoomState) => void): () => void;
 }

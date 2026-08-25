@@ -13,6 +13,7 @@ import { Spinner } from '../components/ui/Spinner';
 import { useRoomState } from '../hooks/useRoomState';
 import { useAuthUid } from '../hooks/useAuthUid';
 import { useCalculations } from '../hooks/useCalculations';
+import { useRedirectWhenClosed } from '../hooks/useRedirectWhenClosed';
 import { useRoomStoreContext } from '../store/RoomStoreContext';
 import type { BillItem, Room, Selection } from '../types';
 
@@ -23,10 +24,12 @@ export function MenuScreen() {
   const store = useRoomStoreContext();
   const navigate = useNavigate();
   const [quantitySheetItem, setQuantitySheetItem] = useState<BillItem | null>(null);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   const room: Room | null = roomState.status === 'ready' ? roomState.room : null;
   const { totals, progress } = useCalculations(room);
   const isJoined = Boolean(room && uid && room.participants[uid]);
+  useRedirectWhenClosed(room, roomCode);
 
   useEffect(() => {
     if (room && uid && !room.participants[uid]) {
@@ -64,18 +67,27 @@ export function MenuScreen() {
     return me.selections.find((s) => s.itemId === itemId);
   }
 
+  // Firestore answers reads from its local cache, so a rejected write still looks
+  // applied on this screen while nobody else ever sees it. Surfacing the failure
+  // is the only way the person knows their pick didn't land.
   async function setMyUnits(item: BillItem, units: number) {
     const next = me.selections.filter((s) => s.itemId !== item.id);
     if (units > 0) next.push({ itemId: item.id, units });
-    await store.updateParticipantSelections(roomCode, participantId, next);
+    try {
+      setSaveError(null);
+      await store.updateParticipantSelections(roomCode, participantId, next);
+    } catch (err) {
+      console.error('updateParticipantSelections failed:', err);
+      setSaveError('הבחירה לא נשמרה. בדקו את החיבור ונסו שוב.');
+    }
   }
 
   function toggleClaim(item: BillItem) {
     const existing = mySelection(item.id);
     if (existing) {
-      setMyUnits(item, 0);
+      void setMyUnits(item, 0);
     } else {
-      setMyUnits(item, 1);
+      void setMyUnits(item, 1);
     }
   }
 
@@ -117,6 +129,12 @@ export function MenuScreen() {
           })}
         </motion.div>
 
+        {saveError && (
+          <p role="alert" className="pb-2 text-center text-sm text-brand-coral-400">
+            {saveError}
+          </p>
+        )}
+
         <button
           onClick={() => navigate(`/room/${roomCode}/summary`)}
           className="mb-2 flex items-center justify-center gap-1.5 self-center text-sm font-medium text-brand-sand/60"
@@ -131,7 +149,7 @@ export function MenuScreen() {
       <QuantitySplitSheet
         item={quantitySheetItem}
         myUnits={quantitySheetItem ? (mySelection(quantitySheetItem.id)?.units ?? 0) : 0}
-        onChangeUnits={(units) => quantitySheetItem && setMyUnits(quantitySheetItem, units)}
+        onChangeUnits={(units) => { if (quantitySheetItem) void setMyUnits(quantitySheetItem, units); }}
         onClose={() => setQuantitySheetItem(null)}
       />
     </AppShell>

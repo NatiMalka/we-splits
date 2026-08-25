@@ -1,4 +1,4 @@
-import type { BillData, Participant, Room, RoomSettings, Selection } from '../types';
+import type { BillData, Participant, Room, RoomSettings, RoomStatus, Selection } from '../types';
 import type { CreateRoomInput, RoomState, RoomStore } from './RoomStore';
 import { RoomNotFoundError } from './RoomStore';
 import { generateRoomCode } from './roomCode';
@@ -164,6 +164,18 @@ export class LocalRoomStore implements RoomStore {
   async updateRoomSettings(roomId: string, settings: Partial<RoomSettings>): Promise<void> {
     const room = this.requireRoomClone(roomId);
     room.settings = { ...room.settings, ...settings };
+    this.writeRoom(room);
+  }
+
+  async removeParticipant(roomId: string, participantId: string): Promise<void> {
+    const room = this.requireRoomClone(roomId);
+    delete room.participants[participantId];
+    this.writeRoom(room);
+  }
+
+  async setRoomStatus(roomId: string, status: RoomStatus): Promise<void> {
+    const room = this.requireRoomClone(roomId);
+    room.status = status;
     this.writeRoom(room);
   }
 

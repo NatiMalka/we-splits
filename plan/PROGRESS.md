@@ -15,11 +15,11 @@ What we've done from the plan so far. Newest at the top.
 | Phase | Status | Done |
 |---|---|---|
 | **Phase 1 — Safety net & wrong money** | ✅ **Complete** | **5 of 5** |
-| Phase 2 — Make it actually work | ⏳ Not started | 0 of 5 |
-| Phase 3 — Lock the doors | ⏳ Not started | 0 of 5 |
+| **Phase 2 — Make it actually work** | ✅ **Complete** | **5 of 5** |
+| Phase 3 — Lock the doors | 🔄 In progress | 1 of 5 |
 | Phase 4 — Make it feel good | ⏳ Not started | 0 of 7 |
 | Phase 5 — Faster and offline | ⏳ Not started | 0 of 5 |
-| Phase 6 — Nice to have | ⏳ Not started | 0 of 4 |
+| Phase 6 — Nice to have | ⏳ Not started | 0 of 3 |
 
 **Shipped so far:**
 
@@ -32,8 +32,81 @@ What we've done from the plan so far. Newest at the top.
 | 1.3 | Warning when items don't match the printed total | [1-money-bugs.md](1-money-bugs.md) |
 | 2.6 | Everyone can mark themselves settled | [2-missing-features.md](2-missing-features.md) |
 | 2.1 | Payment link shelved (wrong model) | [2-missing-features.md](2-missing-features.md) |
+| 2.2 | Join by typing a room code | [2-missing-features.md](2-missing-features.md) |
+| 2.3 | One-tap share to WhatsApp | [2-missing-features.md](2-missing-features.md) |
+| 2.4 | Fix the bill after the room is open | [2-missing-features.md](2-missing-features.md) |
+| 2.5 | Back button on the summary | [2-missing-features.md](2-missing-features.md) |
+| 2.7 | Leave a room / remove someone | [2-missing-features.md](2-missing-features.md) |
+| 2.8 | Close the bill + ending screen | [2-missing-features.md](2-missing-features.md) |
+| 6.3 | No more forever-spinner on login failure | [6-reliability.md](6-reliability.md) |
+| 6.4 | Failed taps now say so | [6-reliability.md](6-reliability.md) |
+| 4.4 | Room codes are no longer guessable | [4-security.md](4-security.md) |
 
-Nothing has been deployed — you do all deploys. Everything above is on `main`.
+All of the above is on `main`. **The app itself has not been deployed** — that's yours.
+The one exception: Firestore *security rules* were deployed (with your OK) because
+2.7 and 2.8 don't work without them. That touched rules only, not the live app.
+
+---
+
+## 25 Aug 2026 — Phase 2 complete 🎉
+
+Everything left in Phase 2, plus the rest of [2-missing-features.md](2-missing-features.md).
+
+### ✅ 2.8 — Closing the bill, with a proper ending
+
+**Was:** No way to finish. Rooms just sat there looking active forever.
+
+**Now:** "סגור חשבון" (only whoever scanned the receipt), with a confirmation that tells you how many people still haven't marked themselves paid. Closing it moves **everyone** to a new ending screen:
+
+- Confetti and "החשבון נסגר!"
+- "תודה שהתחלקתם ב<שם המסעדה>"
+- The final bill — every name, avatar and amount, with a tick beside whoever settled
+- **"שתפו את מתחלקים עם חברים"** — shares the app itself, at the moment people have just had a good experience with it
+- "חשבון חדש" to start again
+
+Nobody has to be told the bill closed — every phone still in the room is moved there on its own. Verified with two devices: one pressed the button, the other arrived by itself.
+
+The confetti disappears entirely if the phone's "reduce motion" setting is on.
+
+### ✅ 2.7 — Leaving a room
+
+"עזוב את החדר" on the summary, with a warning first — leaving deletes your picks, which changes the amount for anyone who shared a dish with you.
+
+Per your choice: you can always leave yourself, and whoever scanned the receipt can remove someone else. Nobody else can remove anyone.
+
+Verified live: a guest left and vanished from the other device within a second.
+
+### ✅ 2.4 — Fixing the bill after the room is open
+
+"עריכת החשבונית" on the room screen, visible only to whoever scanned the receipt. Same editor as before the room existed — fix a price, add the dessert that arrived late. Changes reach everyone immediately.
+
+Deleting a dish someone already picked asks first, as you asked: *"3 אנשים בחרו את זה — מחיקה תסיר אותה מהם והסכום שלהם יקטן"*. Deleting something nobody picked just deletes.
+
+### ✅ 2.2 — Joining by typing a code
+
+New screen with a big 6-character field. It filters as you type, so a misheard letter fails while the field is still in front of you rather than becoming a confusing "room not found".
+
+**Bonus:** this meant rewriting the code generator, which still used `Math.random()` — a predictable formula. That was security item **4.4**, now fixed too: codes use proper crypto randomness.
+
+### ✅ 2.3 — One-tap sharing
+
+The share button now opens the phone's real share sheet instead of just copying text. On a computer it falls back to copying, and says "הועתק" rather than pretending it shared.
+
+### ✅ 2.5 — Back button on the summary
+
+You can get back to the item list to fix a wrong pick.
+
+### ✅ 6.3 / 6.4 — Failures you can actually see
+
+Login failure used to sit on a spinner forever with nothing logged. Now: "לא הצלחנו להתחבר" with a retry button.
+
+A rejected tap used to look like it worked, because the app was reading its own local copy. Now it says so.
+
+---
+
+### ⚠️ One thing you should know
+
+The security rules changed for 2.7 and 2.8 (removing a participant, closing a bill). **I deployed the rules only** — `firebase deploy --only firestore:rules`. Your live app was **not** touched; deploying that is still yours to do.
 
 ---
 
@@ -166,15 +239,13 @@ untouched and still works exactly as before.
 
 ## Next up
 
-**Phase 2 — Make it actually work.** Removes the dead ends people can hit today:
+**Phase 3 — Lock the doors.** The security items, now the most valuable thing left:
 
 | Item | What it is | Where |
 |---|---|---|
-| ⏳ 2.3 | Share to WhatsApp in one tap instead of copy-and-paste | [2-missing-features.md](2-missing-features.md) |
-| ⏳ 2.2 | Let people type a room code | [2-missing-features.md](2-missing-features.md) |
-| ⏳ 2.5 | Back button on the summary screen | [2-missing-features.md](2-missing-features.md) |
-| ⏳ 6.4 | Show a message when a tap fails to save | [6-reliability.md](6-reliability.md) |
-| ⏳ 6.3 | Stop the "forever spinner" when login fails | [6-reliability.md](6-reliability.md) |
+| ⏳ 4.1 | **The important one** — check saved picks every time, not just the first. One guest can currently rewrite what everyone owes. | [4-security.md](4-security.md) |
+| ⏳ 4.2 | Require the join-time field, so one bad record can't break a room for everyone | [4-security.md](4-security.md) |
+| ✅ 4.4 | ~~Room codes are guessable~~ — done early, alongside 2.2 | [4-security.md](4-security.md) |
 
 Still waiting on you (I can't reach these accounts):
 

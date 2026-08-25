@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AnimatePresence } from 'motion/react';
+import { KeyRound } from 'lucide-react';
 import { AppShell } from '../components/layout/AppShell';
 import { PageTransition } from '../components/layout/PageTransition';
 import { UploadHero } from '../components/upload/UploadHero';
@@ -50,6 +51,18 @@ export function UploadScreen() {
           <BrandHeader />
           <UploadHero onCapture={handleCapture} />
           {error && <p className="text-center text-sm text-brand-coral-400">{error}</p>}
+
+          {/* Without this there is no way into an existing room except QR or link —
+              a hard dead end if the camera won't focus or the link gets mangled. */}
+          <button
+            type="button"
+            onClick={() => navigate('/join')}
+            className="flex items-center gap-1.5 py-2 text-sm font-medium text-brand-sand/60"
+          >
+            <KeyRound size={15} />
+            יש לי קוד חדר
+          </button>
+
           {import.meta.env.DEV && <MockReceiptPicker onPick={handleMockPick} />}
         </div>
       </PageTransition>

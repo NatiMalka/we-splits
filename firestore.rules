@@ -14,12 +14,28 @@ service cloud.firestore {
           && d.settings is map;
       }
 
+      // `hostId` names whoever scanned the receipt. It is NOT a social role — this
+      // app is for diners splitting a bill between themselves, with nobody
+      // collecting. It grants exactly two powers: edit the bill items, and close
+      // the bill. Everything else is equal for everyone.
+      function isReceiptScanner() {
+        return request.auth != null && request.auth.uid == resource.data.hostId;
+      }
+
       allow get: if request.auth != null;
       allow list: if false; // never allow enumerating every room in the database
       allow create: if request.auth != null && isValidRoomCreate();
-      allow update: if request.auth != null
-                    && request.auth.uid == resource.data.hostId
+
+      // Bill/settings edits: scanner only, so prices can't shift under the group.
+      allow update: if isReceiptScanner()
                     && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['billData', 'settings']);
+
+      // Closing (or reopening) the bill: scanner only, and `status` must stay one
+      // of the two known values so a client can't write arbitrary junk into it.
+      allow update: if isReceiptScanner()
+                    && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status'])
+                    && request.resource.data.status in ['active', 'completed'];
+
       allow delete: if false; // TTL policies handle cleanup
 
       match /participants/{participantId} {
@@ -41,7 +57,13 @@ service cloud.firestore {
                            .hasOnly(['selections','customTipPercentage','paid'])
                       && request.resource.data.name == resource.data.name
                       && request.resource.data.isHost == resource.data.isHost;
-        allow delete: if false;
+        // You may leave a room yourself, and the receipt scanner may remove
+        // someone (a duplicate join, or a typo'd name). Nobody else can remove
+        // anyone — deleting a participant also deletes their claims, which
+        // changes what everyone else owes on shared dishes.
+        allow delete: if request.auth != null
+                      && (request.auth.uid == participantId
+                          || request.auth.uid == get(/databases/$(database)/documents/rooms/$(roomId)).data.hostId);
       }
     }
   }

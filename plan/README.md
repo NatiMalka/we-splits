@@ -31,9 +31,9 @@ If you only read one section, read this one.
 
 **3. One guest can change what everyone else owes.** The security guard checks a guest's selections the first time they save, and never again. Someone can send a fake number from their own phone and quietly shift everybody's total. → [4.1](4-security.md)
 
-**4. The bill can't be fixed once the room is open.** Dessert arrives late, or the AI misread a price — and the only way out is to start the whole room over. → [2.4](2-missing-features.md)
+**4. ~~The bill can't be fixed once the room is open.~~** ✅ **DONE** — whoever scanned the receipt can now edit it live. → [2.4](2-missing-features.md)
 
-**5. There's no way to type a room code.** The code is displayed big on screen, but there's no field anywhere to enter one. If the QR won't scan, the guest simply can't get in. → [2.2](2-missing-features.md)
+**5. ~~There's no way to type a room code.~~** ✅ **DONE** — there's a code-entry screen now. → [2.2](2-missing-features.md)
 
 ---
 
@@ -50,21 +50,23 @@ Nothing here adds features. It protects the work and stops the app from taking p
 4. ✅ **DONE** — Fix the missing agorot when rounding → [1.2](1-money-bugs.md)
 5. ✅ **DONE** — Warn when items don't add up to the receipt's printed total → [1.3](1-money-bugs.md)
 
-### Phase 2 — Make it actually work
-*About a day. Removes the dead ends people can hit today.*
+### Phase 2 — Make it actually work ✅ COMPLETE
+*Done 25 Aug 2026 — see [PROGRESS.md](PROGRESS.md).*
 
-6. Share to WhatsApp in one tap instead of copy-and-paste → [2.3](2-missing-features.md)
-7. Let people type a room code → [2.2](2-missing-features.md)
-8. Add a back button on the summary screen → [2.5](2-missing-features.md)
-9. Show a message when a tap fails to save → [6.4](6-reliability.md)
-10. Stop the "forever spinner" when login fails → [6.3](6-reliability.md)
+6. ✅ **DONE** — Share to WhatsApp in one tap instead of copy-and-paste → [2.3](2-missing-features.md)
+7. ✅ **DONE** — Let people type a room code → [2.2](2-missing-features.md)
+8. ✅ **DONE** — Add a back button on the summary screen → [2.5](2-missing-features.md)
+9. ✅ **DONE** — Show a message when a tap fails to save → [6.4](6-reliability.md)
+10. ✅ **DONE** — Stop the "forever spinner" when login fails → [6.3](6-reliability.md)
+
+Also finished, from the same document: fixing the bill after the room is open ([2.4](2-missing-features.md)), leaving a room ([2.7](2-missing-features.md)), and closing the bill with an ending screen ([2.8](2-missing-features.md)).
 
 ### Phase 3 — Lock the doors
 *About half a day. Two of these are in your console, not the code.*
 
 12. Check saved selections every time, not just the first → [4.1](4-security.md)
 13. Require the join-time field so one bad record can't break a room → [4.2](4-security.md)
-14. Use proper random room codes → [4.4](4-security.md)
+14. ✅ **DONE** — Use proper random room codes → [4.4](4-security.md)
 15. **Turn on the two auto-delete policies in Firebase** — nothing is being deleted right now → [4.3](4-security.md)
 16. **Restrict the AI key to your website** in Google AI Studio → [4.6](4-security.md)
 
@@ -99,7 +101,7 @@ Nothing here adds features. It protects the work and stops the app from taking p
 
 ## My honest recommendation
 
-**Do phases 1, 2 and 3.** That's roughly two days of work and it covers everything I'd genuinely call a problem: the app takes the wrong amount of money, one guest can mess up everyone's totals, the payment step doesn't work, and the project has no backup.
+**Phases 1 and 2 are done.** What's left that I'd genuinely call a problem is **Phase 3**, and within it [4.1](4-security.md) above all: one guest can currently rewrite what everyone else owes, from their own phone. That's the last real bug in the app.
 
 **Phases 4 and 5 are real but optional.** They make the app nicer and faster. Nothing there is broken — it's polish. Worth doing before showing it to more people, not before showing it to family.
 

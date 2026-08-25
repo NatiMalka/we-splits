@@ -61,15 +61,19 @@ And because the rules block deleting anything, that broken record can never be r
 
 ---
 
-## 4.4 Room codes are guessable
+## 4.4 Room codes are guessable ✅ DONE
 
-**Priority: MEDIUM · Effort: very small**
+**Priority: MEDIUM · Effort: very small · Done 25 Aug 2026 (early, alongside 2.2)**
 
 **Now we have:** Codes are 6 letters, made with the browser's ordinary random function.
 
 **The problem:** That "random" function isn't really random — it's a predictable formula. Someone who collects a few codes can work out what's coming next. On top of that, the app lets anyone check whether a code exists, so guesses are cheap to test.
 
 **The solution:** Use the browser's proper secure random function instead. It's a one-line change.
+
+**✅ Done:** Picked up early, because item 2.2 (typing a room code) meant rewriting this exact function anyway. Codes now use the browser's crypto randomness.
+
+It also avoids a subtler flaw: a naive version makes some letters slightly more likely than others, which quietly shrinks the number of codes an attacker would need to try.
 
 📁 `src/store/roomCode.ts`
 

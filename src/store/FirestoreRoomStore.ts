@@ -1,5 +1,6 @@
 import {
   collection,
+  deleteDoc,
   deleteField,
   doc,
   getDoc,
@@ -12,7 +13,7 @@ import {
   type DocumentData,
 } from 'firebase/firestore';
 import { db, auth } from '../lib/firebase';
-import type { BillData, Participant, Room, RoomSettings, Selection } from '../types';
+import type { BillData, Participant, Room, RoomSettings, RoomStatus, Selection } from '../types';
 import type { CreateRoomInput, RoomState, RoomStore } from './RoomStore';
 import { RoomNotFoundError } from './RoomStore';
 import { generateRoomCode } from './roomCode';
@@ -319,6 +320,14 @@ export class FirestoreRoomStore implements RoomStore {
       updates[`settings.${key}`] = value;
     }
     await updateDoc(doc(db, 'rooms', roomId), updates);
+  }
+
+  async removeParticipant(roomId: string, participantId: string): Promise<void> {
+    await deleteDoc(doc(db, 'rooms', roomId, 'participants', participantId));
+  }
+
+  async setRoomStatus(roomId: string, status: RoomStatus): Promise<void> {
+    await updateDoc(doc(db, 'rooms', roomId), { status });
   }
 }
 

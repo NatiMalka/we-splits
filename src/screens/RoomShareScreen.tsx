@@ -1,4 +1,6 @@
+import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { Pencil } from 'lucide-react';
 import { AppShell } from '../components/layout/AppShell';
 import { PageTransition } from '../components/layout/PageTransition';
 import { RoomCodeBadge } from '../components/room-share/RoomCodeBadge';
@@ -6,14 +8,23 @@ import { QRCodeCard } from '../components/room-share/QRCodeCard';
 import { ShareLinkButton } from '../components/room-share/ShareLinkButton';
 import { ParticipantJoinFeed } from '../components/room-share/ParticipantJoinFeed';
 import { HostControls } from '../components/room-share/HostControls';
+import { EditBillSheet } from '../components/room-share/EditBillSheet';
 import { RoomNotFoundState } from '../components/join/RoomNotFoundState';
 import { Spinner } from '../components/ui/Spinner';
 import { useRoomState } from '../hooks/useRoomState';
+import { useAuthUid } from '../hooks/useAuthUid';
+import { useRedirectWhenClosed } from '../hooks/useRedirectWhenClosed';
+import { useRoomStoreContext } from '../store/RoomStoreContext';
+import type { BillData } from '../types';
 
 export function RoomShareScreen() {
   const { roomCode = '' } = useParams();
   const roomState = useRoomState(roomCode);
+  const uid = useAuthUid();
+  const store = useRoomStoreContext();
   const navigate = useNavigate();
+  const [editing, setEditing] = useState(false);
+  useRedirectWhenClosed(roomState.status === 'ready' ? roomState.room : null, roomCode);
 
   if (roomState.status === 'loading') {
     return (
@@ -39,6 +50,13 @@ export function RoomShareScreen() {
 
   const room = roomState.room;
   const joinUrl = `${window.location.origin}/join/${room.roomId}`;
+  // Only whoever scanned the receipt may edit it, so prices can't shift under
+  // the group while people are picking.
+  const canEditBill = uid === room.hostId;
+
+  async function handleSaveBill(billData: BillData) {
+    await store.updateBillData(roomCode, billData);
+  }
 
   return (
     <AppShell>
@@ -58,6 +76,17 @@ export function RoomShareScreen() {
           <div className="w-full">
             <ParticipantJoinFeed participants={Object.values(room.participants)} />
           </div>
+
+          {canEditBill && (
+            <button
+              type="button"
+              onClick={() => setEditing(true)}
+              className="flex items-center gap-1.5 text-sm font-medium text-brand-sand/50"
+            >
+              <Pencil size={14} />
+              עריכת החשבונית
+            </button>
+          )}
         </div>
 
         <HostControls
@@ -65,6 +94,13 @@ export function RoomShareScreen() {
           onGoToSummary={() => navigate(`/room/${room.roomId}/summary`)}
         />
       </PageTransition>
+
+      <EditBillSheet
+        open={editing}
+        room={room}
+        onSave={handleSaveBill}
+        onClose={() => setEditing(false)}
+      />
     </AppShell>
   );
 }

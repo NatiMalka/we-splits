@@ -41,9 +41,9 @@ Of everything in these documents, this is the one I'd fix first, and it takes tw
 
 ---
 
-## 6.3 If login fails, the app spins forever
+## 6.3 If login fails, the app spins forever ✅ DONE
 
-**Priority: HIGH · Effort: small**
+**Priority: HIGH · Effort: small · Done 25 Aug 2026**
 
 **Now we have:** The app signs you in invisibly in the background before showing anything.
 
@@ -53,13 +53,15 @@ This is the single most confusing possible failure, because it looks like the ap
 
 **The solution:** Catch the failure, show a real message with a retry button, and write it to the log.
 
+**✅ Done:** The spinner now says "מתחבר..." so it reads as a step rather than a hang, and a real failure shows "לא הצלחנו להתחבר" with a "נסה שוב" button. The actual error is written to the browser log — previously it was thrown away entirely, which is what made this so hard to diagnose.
+
 📁 `src/hooks/useAuthUid.ts`, `src/App.tsx`
 
 ---
 
-## 6.4 Tapping a dish can silently fail
+## 6.4 Tapping a dish can silently fail ✅ DONE
 
-**Priority: MEDIUM-HIGH · Effort: small**
+**Priority: MEDIUM-HIGH · Effort: small · Done 25 Aug 2026**
 
 **Now we have:** You tap a dish and it looks selected straight away.
 
@@ -67,7 +69,9 @@ This is the single most confusing possible failure, because it looks like the ap
 
 **The solution:** Catch the failure and show a message so the person knows to try again.
 
-📁 `src/screens/MenuScreen.tsx`
+**✅ Done:** A failed pick now says "הבחירה לא נשמרה. בדקו את החיבור ונסו שוב" instead of looking like it worked. The same treatment was added to the "I paid" toggle and the payment-link field.
+
+📁 `src/screens/MenuScreen.tsx`, `src/screens/SummaryScreen.tsx`
 
 ---
 

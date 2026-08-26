@@ -14,7 +14,7 @@ What we've done from the plan so far. Newest at the top.
 
 | Phase | Status | Done |
 |---|---|---|
-| **Phase 1 — Safety net & wrong money** | ✅ **Complete** | **5 of 5** |
+| **Phase 1 — Safety net & wrong money** | ✅ **Complete** | **5 of 5** (+1 found later in a restaurant) |
 | **Phase 2 — Make it actually work** | ✅ **Complete** | **5 of 5** |
 | Phase 3 — Lock the doors | 🔄 In progress | 1 of 5 |
 | Phase 4 — Make it feel good | ⏳ Not started | 0 of 7 |
@@ -43,9 +43,29 @@ What we've done from the plan so far. Newest at the top.
 | 4.4 | Room codes are no longer guessable | [4-security.md](4-security.md) |
 | 1.4 | Multi-unit rows no longer charged twice (found in a real restaurant) | [1-money-bugs.md](1-money-bugs.md) |
 
-All of the above is on `main`. **The app itself has not been deployed** — that's yours.
-The one exception: Firestore *security rules* were deployed (with your OK) because
-2.7 and 2.8 don't work without them. That touched rules only, not the live app.
+---
+
+## ⚠️ Waiting to go live
+
+Everything above is committed to `main`, but **the live app at
+[we-splits.web.app](https://we-splits.web.app) is still running the old code.**
+Deploys are yours to run:
+
+```powershell
+.\deploy.ps1
+```
+
+The most important reason to deploy: **the money bug you hit in the restaurant
+(item 1.4) is fixed on `main`, but not yet live.** Until you deploy, another bill
+with a `כמות: 2` row can still be overcharged the same way.
+
+Also not live yet: everything from Phase 2 (typing a room code, one-tap sharing,
+editing the bill, leaving a room, the closing screen), and the Phase 1 money fixes
+(no double-tipping, whole shekels, the mismatch warning).
+
+**One exception —** Firestore *security rules* **are** already live. They were
+deployed separately (with your OK) because leaving a room and closing a bill don't
+work without them. That touched rules only, never the app itself.
 
 ---
 
@@ -266,7 +286,10 @@ untouched and still works exactly as before.
 
 ## Next up
 
-**Phase 3 — Lock the doors.** The security items, now the most valuable thing left:
+**First: deploy** (see the section above) — the restaurant bug fix is sitting on
+`main` doing nothing until you do.
+
+**Then Phase 3 — Lock the doors.** The security items, now the most valuable work left:
 
 | Item | What it is | Where |
 |---|---|---|

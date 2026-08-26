@@ -78,7 +78,7 @@ export function ReviewScreen() {
           <h1 className="text-lg font-bold text-brand-sand">בדקו את הפריטים</h1>
         </div>
 
-        <div className="flex flex-1 flex-col gap-4 overflow-y-auto pb-4">
+        <div className="flex flex-1 flex-col gap-4 pb-4">
           <GlassCard className="p-4">
             <ItemList items={draft.billData.items} onChange={draft.updateItem} onRemove={draft.removeItem} />
             <AddItemButton

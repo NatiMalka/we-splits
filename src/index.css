@@ -28,10 +28,13 @@
 }
 
 @layer base {
+  /* min-height, not height: a fixed 100% makes content overflow #root while
+     `overflow: visible` lets it spill, so the document and inner containers end
+     up fighting over which one scrolls. The page is the single scroll container. */
   html,
   body,
   #root {
-    height: 100%;
+    min-height: 100%;
   }
 
   body {
@@ -48,7 +51,19 @@
     /* min-h-dvh (dynamic viewport height), not min-h-screen (100vh) — 100vh on
        mobile Safari is measured behind the collapsing address bar, leaving a gap
        of unstyled white space below the fold until the page scrolls. */
-    @apply relative min-h-dvh overflow-x-hidden bg-gradient-to-b from-[#0b1620] via-[#0f2a2a] to-[#170f0c];
+    @apply relative min-h-dvh bg-gradient-to-b from-[#0b1620] via-[#0f2a2a] to-[#170f0c];
+
+    /* Clips the decorative blobs on BOTH axes without becoming a scroll container.
+       Two separate bugs are being avoided here:
+       - `overflow-x: hidden` forces `overflow-y` to compute as `auto` (per spec),
+         which silently made this a second scroll container and left touch
+         scrolling intermittently dead.
+       - Leaving the y-axis unclipped let the bottom blob (at -4rem) add ~64px of
+         empty scrollable space below the real content.
+       `clip` creates no scroll container at all. `hidden` is the fallback for
+       browsers without `clip`, which keeps the layout sane if slightly janky. */
+    overflow: hidden;
+    overflow: clip;
   }
 
   .app-background::before,

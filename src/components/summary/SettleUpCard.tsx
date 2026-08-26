@@ -1,7 +1,6 @@
 import { motion } from 'motion/react';
 import { CheckCheck, Users } from 'lucide-react';
-import { useCountUp } from '../../hooks/useCountUp';
-import { formatCurrency } from '../../lib/format';
+import { AnimatedCurrency } from '../ui/AnimatedCurrency';
 
 interface SettleUpCardProps {
   unpaidAmount: number;
@@ -14,7 +13,6 @@ interface SettleUpCardProps {
  * anyone is collecting from anyone.
  */
 export function SettleUpCard({ unpaidAmount, paidCount, owingCount }: SettleUpCardProps) {
-  const animated = useCountUp(unpaidAmount, 0.5);
   const allSettled = owingCount > 0 && paidCount >= owingCount;
 
   if (owingCount === 0) return null;
@@ -41,9 +39,11 @@ export function SettleUpCard({ unpaidAmount, paidCount, owingCount }: SettleUpCa
           </p>
         </div>
       </div>
-      <span className={`text-xl font-bold ${allSettled ? 'text-brand-teal-300' : 'text-brand-sand'}`}>
-        {allSettled ? '✓' : formatCurrency(animated)}
-      </span>
+      {allSettled ? (
+        <span className="text-xl font-bold text-brand-teal-300">✓</span>
+      ) : (
+        <AnimatedCurrency value={unpaidAmount} className="text-xl font-bold text-brand-sand" />
+      )}
     </motion.div>
   );
 }

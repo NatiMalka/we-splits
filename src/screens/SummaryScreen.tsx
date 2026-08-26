@@ -140,7 +140,7 @@ export function SummaryScreen() {
   return (
     <AppShell>
       <PageTransition>
-        <div className="flex flex-1 flex-col gap-4 overflow-y-auto pb-4 pt-2">
+        <div className="flex flex-1 flex-col gap-4 pb-4 pt-2">
           {/* Without a way back, spotting a wrong pick here was a dead end. */}
           <div className="flex items-center gap-3">
             <button

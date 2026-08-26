@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { motion } from 'motion/react';
 import { ChevronUp } from 'lucide-react';
-import { useCountUp } from '../../hooks/useCountUp';
+import { AnimatedCurrency } from '../ui/AnimatedCurrency';
 import { formatCurrency } from '../../lib/format';
 import type { ParticipantTotal } from '../../lib/calc/splitEngine';
 
@@ -12,7 +12,6 @@ interface LiveTotalsDrawerProps {
 
 export function LiveTotalsDrawer({ myTotal, allTotals }: LiveTotalsDrawerProps) {
   const [expanded, setExpanded] = useState(false);
-  const animatedTotal = useCountUp(myTotal?.total ?? 0, 0.35);
 
   return (
     <motion.div layout className="glass-card-solid sticky bottom-0 mt-3 overflow-hidden">
@@ -23,7 +22,11 @@ export function LiveTotalsDrawer({ myTotal, allTotals }: LiveTotalsDrawerProps) 
       >
         <span className="text-sm text-brand-sand/60">הסכום שלי</span>
         <div className="flex items-center gap-2">
-          <span className="text-lg font-bold text-brand-sand">{formatCurrency(animatedTotal)}</span>
+          <AnimatedCurrency
+            value={myTotal?.total ?? 0}
+            duration={0.35}
+            className="text-lg font-bold text-brand-sand"
+          />
           <motion.div animate={{ rotate: expanded ? 180 : 0 }}>
             <ChevronUp size={18} className="text-brand-sand/50" />
           </motion.div>

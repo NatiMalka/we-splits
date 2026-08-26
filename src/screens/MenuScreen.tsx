@@ -108,7 +108,7 @@ export function MenuScreen() {
           initial="hidden"
           animate="show"
           variants={{ hidden: {}, show: { transition: { staggerChildren: 0.04 } } }}
-          className="flex flex-1 flex-col gap-2.5 overflow-y-auto pb-2"
+          className="flex flex-1 flex-col gap-2.5 pb-2"
         >
           {room.billData.items.map((item) => {
             const summary = progress.perItem.find((s) => s.itemId === item.id);

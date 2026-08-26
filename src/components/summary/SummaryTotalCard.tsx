@@ -1,10 +1,7 @@
 import { motion } from 'motion/react';
-import { useCountUp } from '../../hooks/useCountUp';
-import { formatCurrency } from '../../lib/format';
+import { AnimatedCurrency } from '../ui/AnimatedCurrency';
 
 export function SummaryTotalCard({ total }: { total: number }) {
-  const animated = useCountUp(total, 0.9);
-
   return (
     <motion.div
       initial={{ scale: 1 }}
@@ -13,9 +10,11 @@ export function SummaryTotalCard({ total }: { total: number }) {
       className="glass-card flex flex-col items-center gap-1 p-8 text-center"
     >
       <p className="text-sm text-brand-sand/60">סה"כ לתשלום</p>
-      <p className="bg-gradient-to-l from-brand-amber-400 to-brand-coral-400 bg-clip-text text-5xl font-extrabold text-transparent">
-        {formatCurrency(animated)}
-      </p>
+      <AnimatedCurrency
+        value={total}
+        duration={0.9}
+        className="bg-gradient-to-l from-brand-amber-400 to-brand-coral-400 bg-clip-text text-5xl font-extrabold text-transparent"
+      />
     </motion.div>
   );
 }

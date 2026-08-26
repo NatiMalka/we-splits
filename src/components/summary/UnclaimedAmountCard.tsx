@@ -1,10 +1,8 @@
 import { motion } from 'motion/react';
 import { PackageSearch } from 'lucide-react';
-import { useCountUp } from '../../hooks/useCountUp';
-import { formatCurrency } from '../../lib/format';
+import { AnimatedCurrency } from '../ui/AnimatedCurrency';
 
 export function UnclaimedAmountCard({ unclaimedAmount }: { unclaimedAmount: number }) {
-  const animated = useCountUp(unclaimedAmount, 0.5);
   const allClaimed = unclaimedAmount <= 0.01;
 
   return (
@@ -27,9 +25,10 @@ export function UnclaimedAmountCard({ unclaimedAmount }: { unclaimedAmount: numb
           </p>
         </div>
       </div>
-      <span className={`text-xl font-bold ${allClaimed ? 'text-brand-teal-300' : 'text-brand-sand'}`}>
-        {formatCurrency(animated)}
-      </span>
+      <AnimatedCurrency
+        value={unclaimedAmount}
+        className={`text-xl font-bold ${allClaimed ? 'text-brand-teal-300' : 'text-brand-sand'}`}
+      />
     </motion.div>
   );
 }

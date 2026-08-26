@@ -41,10 +41,37 @@ What we've done from the plan so far. Newest at the top.
 | 6.3 | No more forever-spinner on login failure | [6-reliability.md](6-reliability.md) |
 | 6.4 | Failed taps now say so | [6-reliability.md](6-reliability.md) |
 | 4.4 | Room codes are no longer guessable | [4-security.md](4-security.md) |
+| 1.4 | Multi-unit rows no longer charged twice (found in a real restaurant) | [1-money-bugs.md](1-money-bugs.md) |
 
 All of the above is on `main`. **The app itself has not been deployed** — that's yours.
 The one exception: Firestore *security rules* were deployed (with your OK) because
 2.7 and 2.8 don't work without them. That touched rules only, not the live app.
+
+---
+
+## 26 Aug 2026 — real-world bug fixed 🐛
+
+### ✅ 1.4 — Multi-unit rows were being charged twice
+
+You tested the app on a real bill and the mismatch warning fired. Good catch — it was a genuine bug, and an expensive one.
+
+**What happened:** the receipt printed `קולה  14.00  2  28.00` — unit price 14, quantity 2, row total 28. The AI returned **28** as the unit price, so the app charged 28 × 2 = **56**. Same on עסקית קטנטנים: **184** instead of 92.
+
+A **369 ₪** bill came out as **489 ₪**, with the tip calculated on the inflated number.
+
+**The root cause was ours, not the AI's.** Our instructions literally said to extract *"unit prices **or** total prices"* — we gave the AI permission to return either column. It picked one at random each scan, which is exactly why your later scans sometimes looked fine.
+
+And it hid well: on quantity-1 rows both columns are identical, so nothing looks wrong. Only rows with quantity 2+ break — your receipt happened to have two.
+
+**Fixed in three layers**, since one prompt tweak still means trusting the AI:
+
+1. **Clear instructions** — all three numbers requested separately, with the קולה row spelled out as an example. Also told that a leading number in a name is part of the name, so `2 ערב.קבב שיפודי` doesn't become quantity 2.
+2. **The app now checks the AI.** The receipt prints both price columns *and* a grand total, so both readings get totalled and compared against the printed total — whichever adds up is the one used. Plain arithmetic, so it works even if the AI misreads again. Silent, as you asked.
+3. **Your warning stays** for anything arithmetic can't settle — it's what caught this in the first place.
+
+**Verified against the live AI five times** on your actual receipt: 369 ₪ every run, every row right, no repair even needed (the clearer instructions were enough on their own). 7 new unit tests pin the exact 369 → 489 case so it can't silently return.
+
+📄 [1-money-bugs.md](1-money-bugs.md) item 1.4
 
 ---
 

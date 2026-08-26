@@ -63,3 +63,36 @@ One detail worth knowing: every phone works this out on its own, so the rounding
 The check is skipped when the AI couldn't read a total at all, so it doesn't cry wolf. Verified by changing a price from 68 to 20: "הפריטים למעלה מסתכמים ב־430 ₪, אבל בחשבונית כתוב 526 ₪ — חסר 96 ₪."
 
 📁 `src/screens/ReviewScreen.tsx`, `src/components/review/TotalMismatchWarning.tsx`
+
+---
+
+## 1.4 Multi-unit rows were charged twice ✅ DONE
+
+**Priority: HIGH · Effort: small · Found in a real restaurant 25 Aug 2026, fixed 26 Aug 2026**
+
+**Now we have:** Israeli receipts print two price columns — `מחיר` (price for one unit) and `סך הכל` (total for that row). The app stores the *unit* price and multiplies it by the quantity.
+
+**The problem:** Our instructions to the AI said to extract *"unit prices **or** total prices"* — so the AI was free to return either column, and picked one more or less at random each scan. When it returned the row total, the app multiplied an already-multiplied number.
+
+On a real bill:
+
+| Row | On the receipt | What the app charged |
+|---|---|---|
+| קולה | 14 × 2 = **28 ₪** | 28 × 2 = **56 ₪** |
+| עסקית קטנטנים | 46 × 2 = **92 ₪** | 92 × 2 = **184 ₪** |
+
+A **369 ₪** bill was billed as **489 ₪** — and the tip was calculated on the inflated figure too.
+
+**Why it was so easy to miss:** on rows with quantity 1 both columns are the same number, so nothing looks wrong. The bug only ever shows on rows with quantity 2 or more. That's also why re-scanning the same receipt sometimes came out right.
+
+**The solution:** Stop letting the AI choose, and stop trusting it blindly.
+
+**✅ Done — three layers:**
+
+1. **The instructions are no longer ambiguous.** The AI is now asked for all three numbers separately (quantity, unit price, row total), told they are different columns, and given the קולה row as a worked example. The AI also gets told a leading number in an item's name is part of the *name* — `2 ערב.קבב שיפודי` on this receipt is quantity 1, not 2.
+2. **The app now checks the AI's work.** Because the receipt prints both columns *and* a grand total, both readings can be totalled and compared against the printed total — whichever reconciles is the one used. This is plain arithmetic, so it holds even if the AI misreads again. Repairs happen silently, as you asked.
+3. **The warning from 1.3 stays** as the last line of defence, for anything the arithmetic can't settle. That warning is what caught this in the restaurant in the first place.
+
+**Verified** by running the real receipt through the live AI five times: 369 ₪ every time, every row correct. Plus 7 unit tests, including the exact 369 → 489 case, so it can't come back unnoticed.
+
+📁 `src/lib/gemini/analyzeReceipt.ts`, `src/lib/gemini/reconcileItems.ts`

@@ -1,4 +1,5 @@
 import type { BillData } from '../../types';
+import { reconcileItems } from './reconcileItems';
 
 // Type enum values are just their own string names (Type.OBJECT === 'OBJECT') per the
 // SDK — inlined here as plain strings so the schema can be built without a static
@@ -24,15 +25,37 @@ function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+// The previous version of this prompt said "extract quantities and unit prices OR
+// total prices per item", which let the model choose either column. On rows with
+// quantity 1 both readings agree, so it looked fine — but on a `כמות: 2` row the
+// app then multiplied an already-multiplied figure and doubled it (a real ₪369
+// receipt was billed as ₪489). Both columns are now requested explicitly and
+// separately, and reconcileItems() cross-checks them against the printed total.
 const SYSTEM_PROMPT = `You are an expert OCR and receipt parsing assistant specialized in Israeli restaurant bills in Hebrew.
 Analyze the provided image of a restaurant receipt and extract the structured data into JSON format.
 
+Israeli receipts usually lay out item rows in four columns, right to left:
+  תאור פריט (description) | מחיר (price for ONE unit) | כמות (quantity) | סך הכל (total for the row)
+
 Guidelines:
-1. Extract item names accurately in Hebrew.
-2. Extract quantities and unit prices or total prices per item.
-3. Ignore sub-headings that are not distinct chargeable items.
-4. Identify if there is a 'service' (שירות) line item and return it separately as serviceFee.
-5. Extract the grand total printed on the receipt.`;
+1. Extract item names accurately in Hebrew, exactly as printed.
+2. For each row return THREE separate numbers:
+   - "quantity": the כמות column (how many units).
+   - "unitPrice": the מחיר column — the price of a SINGLE unit. Never the row total.
+   - "lineTotal": the סך הכל column — the total for the whole row.
+   These are different columns. Do not copy one into the other.
+   Consistency check: unitPrice × quantity must equal lineTotal. For example a row
+   reading "קולה  14.00  2  28.00" is unitPrice 14, quantity 2, lineTotal 28 —
+   NOT unitPrice 28.
+   If the receipt shows only one price column, put the same figure in both and set
+   quantity from the כמות column.
+3. A leading number inside an item's name is part of the NAME, not the quantity.
+   "2 ערב.קבב שיפודי  72.00  1  72.00" has quantity 1, not 2.
+4. Ignore sub-headings and lines that are not distinct chargeable items.
+5. If a service charge (שירות / דמי שירות) is listed as its own line, return it as
+   serviceFee and do NOT also include it as an item. Text such as
+   "המחיר לא כולל שירות" means service was NOT charged — return serviceFee 0.
+6. "rawTotal" is the grand total printed on the receipt (סך לתשלום / סך הכל לתשלום).`;
 
 const RESPONSE_SCHEMA = {
   type: Type.OBJECT,
@@ -43,22 +66,32 @@ const RESPONSE_SCHEMA = {
       items: {
         type: Type.OBJECT,
         properties: {
-          name: { type: Type.STRING },
-          quantity: { type: Type.NUMBER },
-          price: { type: Type.NUMBER },
+          name: { type: Type.STRING, description: 'Item name in Hebrew, as printed' },
+          quantity: { type: Type.NUMBER, description: 'The כמות column — how many units' },
+          unitPrice: {
+            type: Type.NUMBER,
+            description: 'The מחיר column — price of ONE unit. Never the row total.',
+          },
+          lineTotal: {
+            type: Type.NUMBER,
+            description: 'The סך הכל column — total for the row, i.e. unitPrice × quantity',
+          },
         },
-        required: ['name', 'quantity', 'price'],
+        required: ['name', 'quantity', 'unitPrice', 'lineTotal'],
       },
     },
-    serviceFee: { type: Type.NUMBER },
-    rawTotal: { type: Type.NUMBER },
+    serviceFee: {
+      type: Type.NUMBER,
+      description: 'Service charge if listed as its own line, else 0',
+    },
+    rawTotal: { type: Type.NUMBER, description: 'Grand total printed on the receipt' },
   },
   required: ['items', 'serviceFee', 'rawTotal'],
 };
 
 interface GeminiReceiptResult {
   restaurantName: string | null;
-  items: { name: string; quantity: number; price: number }[];
+  items: { name: string; quantity: number; unitPrice: number; lineTotal?: number }[];
   serviceFee: number;
   rawTotal: number;
 }
@@ -124,14 +157,24 @@ export async function analyzeReceipt(file: File): Promise<AnalyzeReceiptResult> 
   if (!text) throw new Error('Gemini returned an empty response');
 
   const parsed = JSON.parse(text) as GeminiReceiptResult;
+  const serviceFee = parsed.serviceFee ?? 0;
+  const rawTotal = parsed.rawTotal ?? 0;
+
+  // Don't trust either price column on its own — check both against the printed
+  // total and keep whichever reconciles. Silent by design: when this can't be
+  // resolved the review screen's mismatch warning is what surfaces it.
+  const reconciled = reconcileItems(parsed.items ?? [], serviceFee, rawTotal);
+  if (reconciled.repairedItemNames.length > 0) {
+    console.info('Reconciled receipt rows against the printed total:', reconciled.repairedItemNames);
+  }
 
   const billData: BillData = {
     restaurantName: parsed.restaurantName ?? null,
     currency: 'ILS',
-    serviceFee: parsed.serviceFee ?? 0,
-    rawTotal: parsed.rawTotal ?? 0,
-    items: parsed.items.map((item) => ({ ...item, id: crypto.randomUUID() })),
+    serviceFee,
+    rawTotal,
+    items: reconciled.items,
   };
 
-  return { billData, includeServiceInSplitDefault: billData.serviceFee > 0 };
+  return { billData, includeServiceInSplitDefault: serviceFee > 0 };
 }

@@ -1,9 +1,21 @@
 @import 'tailwindcss';
-@import '@fontsource/rubik/400.css';
-@import '@fontsource/rubik/500.css';
-@import '@fontsource/rubik/600.css';
-@import '@fontsource/rubik/700.css';
-@import '@fontsource/rubik/800.css';
+/* Hebrew + Latin subsets only. The bare `400.css` entry points pull in every
+   subset Rubik ships — arabic, cyrillic, cyrillic-ext, latin-ext — which built
+   out to 60 font files. Browsers never *downloaded* the unused ones (each
+   @font-face carries a unicode-range), so this is deploy weight rather than
+   load time, but there is no reason to publish fonts for languages the app
+   doesn't render. The `.woff` fallbacks go too: nothing that can run React 19
+   lacks woff2. */
+@import '@fontsource/rubik/hebrew-400.css';
+@import '@fontsource/rubik/hebrew-500.css';
+@import '@fontsource/rubik/hebrew-600.css';
+@import '@fontsource/rubik/hebrew-700.css';
+@import '@fontsource/rubik/hebrew-800.css';
+@import '@fontsource/rubik/latin-400.css';
+@import '@fontsource/rubik/latin-500.css';
+@import '@fontsource/rubik/latin-600.css';
+@import '@fontsource/rubik/latin-700.css';
+@import '@fontsource/rubik/latin-800.css';
 
 @theme {
   --color-brand-charcoal: #0b1620;
@@ -98,5 +110,61 @@
 
   .glass-card-solid {
     @apply relative rounded-3xl border border-white/10 bg-black/25 shadow-[var(--shadow-glass)] backdrop-blur-xl;
+  }
+}
+
+@layer components {
+  /* The project's first CSS animation. Everything else runs through motion/react,
+     but a skeleton has to shimmer while React is still fetching the chunk that
+     would provide a JS animation runtime — so this one has to be pure CSS. */
+  .skeleton {
+    @apply relative overflow-hidden rounded-xl bg-white/6;
+  }
+
+  .skeleton::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    /* Travels the full width plus its own width, hence -100% to 200%. */
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      color-mix(in srgb, var(--color-brand-sand) 7%, transparent) 50%,
+      transparent 100%
+    );
+    animation: skeleton-sweep 1.4s ease-in-out infinite;
+  }
+
+  @keyframes skeleton-sweep {
+    from {
+      transform: translateX(-100%);
+    }
+    to {
+      transform: translateX(200%);
+    }
+  }
+}
+
+/* The CSS half of honouring the phone's "reduce motion" setting. The JS half is
+   <MotionConfig reducedMotion="user"> at the app root, which covers every
+   motion/react component at once; this catches the rest.
+
+   `revert-layer` rather than `none` on transition-property: killing transitions
+   outright makes focus and hover states snap in a way that reads as broken.
+   Durations are cut to near-zero instead, so state changes still land. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  /* A static skeleton still needs to read as a placeholder, so keep the tint
+     and just stop the sweep from being painted at all. */
+  .skeleton::after {
+    display: none;
   }
 }

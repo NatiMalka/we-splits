@@ -17,8 +17,8 @@ What we've done from the plan so far. Newest at the top.
 | **Phase 1 — Safety net & wrong money** | ✅ **Complete** | **5 of 5** (+1 found later in a restaurant) |
 | **Phase 2 — Make it actually work** | ✅ **Complete** | **5 of 5** |
 | Phase 3 — Lock the doors | 🔄 In progress | 1 of 5 |
-| Phase 4 — Make it feel good | ⏳ Not started | 0 of 7 |
-| Phase 5 — Faster and offline | ⏳ Not started | 0 of 5 |
+| Phase 4 — Make it feel good | 🔄 In progress | 2 of 7 (+4 new items found) |
+| Phase 5 — Faster and offline | 🔄 In progress | 2.5 of 5 |
 | Phase 6 — Nice to have | ⏳ Not started | 0 of 3 |
 
 **Shipped so far:**
@@ -42,6 +42,57 @@ What we've done from the plan so far. Newest at the top.
 | 6.4 | Failed taps now say so | [6-reliability.md](6-reliability.md) |
 | 4.4 | Room codes are no longer guessable | [4-security.md](4-security.md) |
 | 1.4 | Multi-unit rows no longer charged twice (found in a real restaurant) | [1-money-bugs.md](1-money-bugs.md) |
+| 5.3 | Counting numbers no longer redraw the screen 60×/sec | [5-performance.md](5-performance.md) |
+| — | Touch scrolling no longer intermittently dead | [3-ui-ux.md](3-ui-ux.md) |
+| 5.1 | Screens load only when opened (partly — see below) | [5-performance.md](5-performance.md) |
+| 5.2 | Stopped publishing fonts for unused languages | [5-performance.md](5-performance.md) |
+| 3.1 | "Reduce motion" is respected everywhere | [3-ui-ux.md](3-ui-ux.md) |
+| 3.13 | Empty screens explain themselves | [3-ui-ux.md](3-ui-ux.md) |
+| 3.14 | Placeholder shapes instead of bare spinners | [3-ui-ux.md](3-ui-ux.md) |
+| 3.15 | Long bills: fade-in delay capped (search box still to do) | [3-ui-ux.md](3-ui-ux.md) |
+| 3.18 | The AI progress bar no longer lies | [3-ui-ux.md](3-ui-ux.md) |
+| 3.19 | Buttons show when they're working | [3-ui-ux.md](3-ui-ux.md) |
+| 3.20 | Two dead animations fixed; the finish is celebrated | [3-ui-ux.md](3-ui-ux.md) |
+| 3.21 | Lottie animation while the AI reads the receipt | [3-ui-ux.md](3-ui-ux.md) |
+
+---
+
+## Measured: what the app downloads before it shows anything
+
+Compressed sizes, which is what actually travels:
+
+| | Before | After |
+|---|---|---|
+| Total | 322 KB | **299 KB** |
+| …of which is our own code | most of it | **6.6 KB** |
+| Font files published | 60 | **20** |
+| Lottie player + artwork | — | **0 up front** (47 KB only when you scan) |
+
+The improvement is smaller than it looks, and the reason is worth knowing:
+**almost none of the weight is ours.** Firebase alone is **177 KB — 59%** of the
+opening download, and it loads even for someone on the first screen who never
+opens a room.
+
+Taking that 100 KB off is now the **single biggest remaining speed win** in the
+whole plan. It was deliberately not done here: it touches the code that moves
+people's money, and it deserves its own careful change rather than being bundled
+into UI work. Details in [5.1](5-performance.md).
+
+---
+
+## Two things the plan documents got wrong
+
+Recorded because they're easy mistakes to repeat:
+
+1. **Item 5.2 ("fonts — easiest win on this list") was wrong.** It implied every
+   visitor downloaded Arabic and Russian alphabets. They didn't: every font file
+   is published with a note saying which letters it contains, and browsers only
+   fetch the ones they need. Real saving to the user: **zero**. It was deploy
+   tidiness. Now corrected in the document.
+
+2. **Items 3.1 and 5.3 both pointed at `src/hooks/useCountUp.ts`, a file that no
+   longer exists.** 5.3 had also been quietly finished during other work without
+   being marked. Both fixed.
 
 ---
 
@@ -58,6 +109,10 @@ Deploys are yours to run:
 The most important reason to deploy: **the money bug you hit in the restaurant
 (item 1.4) is fixed on `main`, but not yet live.** Until you deploy, another bill
 with a `כמות: 2` row can still be overcharged the same way.
+
+Also waiting: the scrolling fix, and everything in the two animation commits
+above — including the AI progress bar that currently freezes at 92% for up to
+twenty seconds on the live site.
 
 Also not live yet: everything from Phase 2 (typing a room code, one-tap sharing,
 editing the bill, leaving a room, the closing screen), and the Phase 1 money fixes

@@ -70,10 +70,10 @@ Also finished, from the same document: fixing the bill after the room is open ([
 15. **Turn on the two auto-delete policies in Firebase** — nothing is being deleted right now → [4.3](4-security.md)
 16. **Restrict the AI key to your website** in Google AI Studio → [4.6](4-security.md)
 
-### Phase 4 — Make it feel good
-*About a day. All small, all visible.*
+### Phase 4 — Make it feel good 🔄 IN PROGRESS
+*Started 7 Sep 2026 — see [PROGRESS.md](PROGRESS.md).*
 
-17. Respect the phone's "reduce motion" setting → [3.1](3-ui-ux.md)
+17. ✅ **DONE** — Respect the phone's "reduce motion" setting → [3.1](3-ui-ux.md)
 18. Add a checkmark on picked items instead of colour only → [3.2](3-ui-ux.md)
 19. Show who took what, and how many → [3.3](3-ui-ux.md)
 20. Use one consistent "how much is left" number → [3.4](3-ui-ux.md)
@@ -81,12 +81,23 @@ Also finished, from the same document: fixing the bill after the room is open ([
 22. Show the line total on the menu, not just the unit price → [3.5](3-ui-ux.md)
 23. Make the shared link show a proper preview in WhatsApp → [3.12](3-ui-ux.md)
 
-### Phase 5 — Faster and offline
-*About half a day.*
+Also finished, found while working on the animations:
 
-24. Stop shipping Arabic and Russian fonts — easiest win on the list → [5.2](5-performance.md)
-25. Load each screen only when it's opened → [5.1](5-performance.md)
-26. Fix the counting-numbers slowdown → [5.3](5-performance.md)
+- ✅ **DONE** — The AI progress bar no longer lies (it used to freeze at 92% for up to 20s) → [3.18](3-ui-ux.md)
+- ✅ **DONE** — Buttons show when they're working; joining a room had no error handling at all → [3.19](3-ui-ux.md)
+- ✅ **DONE** — Placeholder shapes instead of six bare spinners → [3.14](3-ui-ux.md)
+- ✅ **DONE** — Empty screens explain themselves instead of showing a bare "0 ₪" → [3.13](3-ui-ux.md)
+- ✅ **DONE** — Two animations that never ran; the "everyone paid" moment is celebrated → [3.20](3-ui-ux.md)
+- ✅ **DONE** — A Lottie animation while the AI reads the receipt → [3.21](3-ui-ux.md)
+
+### Phase 5 — Faster and offline 🔄 IN PROGRESS
+*Started 7 Sep 2026 — see [PROGRESS.md](PROGRESS.md).*
+
+24. ✅ **DONE** — Stop publishing fonts for unused languages → [5.2](5-performance.md)
+    ⚠️ *but this was never the "easiest win" this list claimed — it saved the user nothing. See the corrected item.*
+25. ✅ **DONE (partly)** — Load each screen only when it's opened → [5.1](5-performance.md)
+    **The real remaining win lives here:** Firebase is 59% of the opening download and loads even for people who never open a room. Worth ~100 KB, and needs its own careful change because it touches the money path.
+26. ✅ **DONE** — Fix the counting-numbers slowdown → [5.3](5-performance.md)
 27. Add an "you're offline" bar → [5.6](5-performance.md)
 28. Make the app open without internet → [5.5](5-performance.md)
 
@@ -103,7 +114,12 @@ Also finished, from the same document: fixing the bill after the room is open ([
 
 **Phases 1 and 2 are done.** What's left that I'd genuinely call a problem is **Phase 3**, and within it [4.1](4-security.md) above all: one guest can currently rewrite what everyone else owes, from their own phone. That's the last real bug in the app.
 
-**Phases 4 and 5 are real but optional.** They make the app nicer and faster. Nothing there is broken — it's polish. Worth doing before showing it to more people, not before showing it to family.
+**Phases 4 and 5 are now partly done** (7 Sep 2026). Two things found in there were *not* polish and are worth calling out:
+
+- The AI progress bar **froze at 92%** while the real scan ran for up to another twenty seconds, never mentioning that it was retrying. That's the app's first impression, and it looked broken.
+- Joining a room had **no error handling at all** — if it failed, you tapped a dead button forever with no message.
+
+The rest of those two phases genuinely is polish. What's left in Phase 5 has one substantial item: getting Firebase off the opening download (~100 KB, 59% of it).
 
 **Phase 6 and the ideas file are for later.** Talk through them first; some are bigger than they look.
 

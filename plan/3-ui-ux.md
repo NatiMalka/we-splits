@@ -6,15 +6,15 @@ Design, usability and accessibility. Most of these are small changes that make t
 
 ## 3.1 Animations can't be turned off
 
-**Priority: MEDIUM-HIGH · Effort: very small**
+**Priority: MEDIUM-HIGH · Effort: very small** · ✅ **DONE — 7 Sep 2026**
 
-**Now we have:** The app animates a lot — screens fade, lists slide in one by one, numbers count up, and the receipt icon on the home screen floats forever.
+**Now we have:** The app checks the phone's "reduce motion" setting and respects it everywhere.
 
-**The problem:** Every phone has a "reduce motion" setting for people who get dizzy or nauseous from movement. The app completely ignores it — there is not a single line about it anywhere in the code.
+It turned out one line does almost all of it. The animation library has a single switch that covers **every** animated component at once — all ~35 of them, including the receipt icon that floats forever on the home screen. Before this, exactly two components checked the setting for themselves. Editing 35 files would have been the wrong fix.
 
-**The solution:** Check that setting and turn the animations off when it's on. One small block of CSS plus a check in the counting-numbers code.
+Also added: the matching CSS rule for the few things not driven by the animation library, and the new scanning animation doesn't even download when reduce-motion is on — it shows a still icon instead.
 
-📁 `src/index.css`, `src/hooks/useCountUp.ts`, `src/components/upload/UploadHero.tsx`
+📁 `src/App.tsx` (the switch), `src/index.css` (the CSS half)
 
 ---
 
@@ -176,31 +176,30 @@ Also — the app already knows Dani took 2 beers out of 3. It just never shows t
 
 ## 3.13 Empty situations aren't explained
 
-**Priority: MEDIUM · Effort: small**
+**Priority: MEDIUM · Effort: small** · ✅ **DONE — 7 Sep 2026**
 
-**Now we have:** Several screens show a bare 0 ₪ with no explanation.
+**Now we have:** Open your summary without picking anything and it says *"עדיין לא בחרת מנות"* with a button straight back to the dish list — instead of a confident **0 ₪** that read as a bug. The "share my summary" button is hidden too; there was nothing to share.
 
-**The problem:** Two real cases:
-- You open your summary without picking anything → just "0 ₪", no hint, no way back.
-- If you're not actually in the room, the summary shows a confident 0 ₪ instead of sending you to join. That looks like a bug.
+The app had exactly **one** empty state in the whole codebase before this. Also added:
 
-**The solution:** Add short messages for both, with a link to the right place.
+- The item list when you delete every row — previously it collapsed to a lone "add item" button with no explanation.
+- The share screen while you wait for people. This one changed during the work: the state originally written for it (*"waiting for joiners"*) turned out to be nearly unreachable, because whoever scanned the receipt counts as a participant, so the card reads "(1)" from the moment the room exists. The state the host is really in is *"רק אתם כאן — שתפו את הקוד"*.
 
-📁 `src/screens/SummaryScreen.tsx`
+📁 `src/components/ui/EmptyState.tsx`, `src/screens/SummaryScreen.tsx`, `src/components/review/ItemList.tsx`, `src/components/room-share/ParticipantJoinFeed.tsx`
 
 ---
 
 ## 3.14 Loading is a bare spinner, and can spin forever
 
-**Priority: MEDIUM · Effort: small**
+**Priority: MEDIUM · Effort: small** · ✅ **DONE — 7 Sep 2026**
 
-**Now we have:** A small spinning circle in the middle of the screen while data loads.
+**Now we have:** Grey placeholder shapes in the shape of the real list, so the screen looks like it's filling in rather than like something is stuck. Six screens showed the same text-free spinning circle before.
 
-**The problem:** No text, no sense of progress. And if login quietly fails, the app spins **forever** with no message and nothing in the log — see reliability doc, item 6.3.
+A second problem was hiding underneath: all six of those screens returned their spinner *before* the screen-transition wrapper, so arriving at a room had no entrance animation at all and the spinner snapped to the content. Now it fades across.
 
-**The solution:** Grey placeholder shapes instead of a spinner, plus a message if it takes too long.
+*(The "spins forever if login fails" half was fixed earlier — see [6.3](6-reliability.md).)*
 
-📁 `src/components/ui/Spinner.tsx` and the screens that use it
+📁 `src/components/ui/Skeleton.tsx`, `src/components/ui/RoomLoadingState.tsx`, and the six room screens
 
 ---
 
@@ -213,6 +212,8 @@ Also — the app already knows Dani took 2 beers out of 3. It just never shows t
 **The problem:** On a 25-item receipt, finding your dish is a lot of thumb-scrolling. And because each row fades in slightly after the one above it, the 40th item appears about 2 seconds late.
 
 **The solution:** A search box, and cap the fade-in delay.
+
+✅ **Half done — 7 Sep 2026:** the fade-in delay is capped. However long the receipt, the whole cascade now finishes within half a second, so the last row never keeps you waiting. **Still to do:** the search box.
 
 📁 `src/screens/MenuScreen.tsx`, `src/components/summary/SummaryItemRow.tsx`
 
@@ -243,3 +244,73 @@ Also — the app already knows Dani took 2 beers out of 3. It just never shows t
 **The solution:** Consider a light theme. Being honest: this is a big job, because every glass surface, colour and glow is tuned for dark. Worth discussing before starting.
 
 📁 `src/index.css` and most components
+
+---
+
+## 3.18 The screen lied about how far along the AI was
+
+**Priority: HIGH · Effort: small** · ✅ **DONE — 7 Sep 2026**
+
+**Now we have:** While the AI reads your receipt, the screen tells you what is actually happening — and admits when it doesn't know.
+
+**What it was:** the loading bar filled to 92% in two seconds and then **froze there**. Three status lines advanced on a blind timer with no connection to the real request. And if the AI service was busy, the app quietly retried up to three times without ever saying so.
+
+The catch: a real scan takes 10–25 seconds. The screen had been tuned against the fake 2-second delay used in development and never re-checked against the real thing. So people sat watching a frozen 92% for twenty seconds with no idea anything was still happening.
+
+**The rule now:** never show a percentage we can't justify. While we're waiting on the AI we genuinely don't know how long it will take, so the bar sweeps instead of claiming a number. Past 12 seconds it says *"לוקח יותר מהרגיל"*. If it's retrying, it says so, and which attempt.
+
+📁 `src/components/upload/AnalyzingOverlay.tsx`, `src/components/upload/analyzeStageCopy.ts`, `src/lib/gemini/analyzeReceipt.ts`
+
+---
+
+## 3.19 Buttons gave no sign they were working
+
+**Priority: MEDIUM-HIGH · Effort: small** · ✅ **DONE — 7 Sep 2026**
+
+**Now we have:** Buttons that are saving something say so, and show a spinner.
+
+Three places had nothing:
+
+- **"צור חדר"** faded to 40% and that was it. Dimmed-and-dead reads as *broken*, not as *working* — so a loading button now stays fully bright, with a spinner and *"יוצר חדר..."*.
+- **Joining a room** had no "working" state and, worse, **no error handling at all**. If joining failed nothing was shown — you tapped a dead button forever. It also let extra taps through, firing pointless repeat saves. *(It could not create a duplicate person — that was checked.)*
+- **"סגור חשבון"** — the biggest action in the app — waits for the server to confirm before moving everyone to the ending screen. The host used to tap it and sit on a frozen screen for that whole round trip.
+
+📁 `src/components/ui/Button.tsx`, `src/components/join/JoinForm.tsx`, `src/components/summary/RoomFooterActions.tsx`, `src/components/review/ReviewSummaryBar.tsx`
+
+---
+
+## 3.20 Two animations that never ran, and an uncelebrated finish
+
+**Priority: LOW-MEDIUM · Effort: very small** · ✅ **DONE — 7 Sep 2026**
+
+Small things found while going through the animation code:
+
+- **Two panels closed instantly** while opening smoothly — "כל הסועדים" and "הסכום שלי". Both had closing animations written, but neither was wired up, so the code never ran.
+- **The moment everyone finishes paying** — arguably the happiest moment in the app — replaced the amount with a plain **✓** text character, with no transition at all. It's now a checkmark that draws itself on.
+
+📁 `src/components/summary/AllParticipantsSummary.tsx`, `src/components/menu/LiveTotalsDrawer.tsx`, `src/components/ui/AnimatedCheck.tsx`, `src/components/summary/SettleUpCard.tsx`
+
+---
+
+## 3.21 Lottie animations — and why only in one place
+
+**Priority: LOW · Effort: medium** · ✅ **DONE (the first one) — 7 Sep 2026**
+
+**Now we have:** A proper illustrated animation — a beam sweeping over a receipt — while the AI reads your bill.
+
+**Why only there.** Lottie animations are artwork files. They're wonderful for illustration and the wrong tool for everything else, for three reasons: they need a **47 KB player** downloaded, their **colours are baked in** so they can't follow the app's theme (and would all need redoing if a light theme ever lands — see [3.17](#317-dark-mode-only)), and each one is a file that has to be found and licence-checked.
+
+So the split is deliberate:
+
+| | Approach |
+|---|---|
+| The AI reading your receipt | **Lottie** — the longest wait in the app, and real illustration says what's happening better than a spinning icon |
+| Checkmarks, placeholders, sliding panels, counting numbers, screen changes | **Code** — free, follows the theme, works offline |
+
+**What it costs:** nothing up front. The player and the artwork both download only when someone actually scans a receipt — the opening download grew by **98 bytes**. If the file is missing, fails to load, or reduce-motion is on, you get the old spinning icon instead and nothing breaks.
+
+**To make it fancier:** the animation is at `public/lottie/scan.json` and can be swapped for anything from [lottiefiles.com](https://lottiefiles.com) without touching code. Instructions are in `public/lottie/README.md`.
+
+**Not done:** a Lottie for the ending/celebration screen. The existing confetti is 9 hand-made falling rectangles — sparse, no burst, and nothing at all under reduce-motion. Worth revisiting, but it needs artwork chosen first.
+
+📁 `src/components/ui/LottiePlayer.tsx`, `public/lottie/`

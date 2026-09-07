@@ -7,11 +7,31 @@ import { formatCurrency } from '../../lib/format';
 
 interface JoinFormProps {
   room: Room;
-  onJoin: (name: string) => void;
+  onJoin: (name: string) => Promise<void>;
 }
 
 export function JoinForm({ room, onJoin }: JoinFormProps) {
   const [name, setName] = useState('');
+  const [joining, setJoining] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function submit() {
+    // Guard, not just cosmetic: the button used to stay live for the whole
+    // Firestore write, so a double-tap on a slow connection called joinRoom
+    // twice. The pending flag is checked as well as the disabled attribute
+    // because a queued second tap can arrive before React re-renders.
+    if (joining || !name.trim()) return;
+    setJoining(true);
+    setError(null);
+    try {
+      await onJoin(name.trim());
+      // Deliberately no setJoining(false) on success — the caller navigates
+      // away, and re-enabling the button first lets one more tap through.
+    } catch {
+      setError('לא הצלחנו להצטרף. בדקו את החיבור ונסו שוב.');
+      setJoining(false);
+    }
+  }
   const total = room.billData.items.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
   return (
@@ -40,10 +60,18 @@ export function JoinForm({ room, onJoin }: JoinFormProps) {
         />
       </motion.div>
 
-      <motion.div variants={{ hidden: { opacity: 0, y: 10 }, show: { opacity: 1, y: 0 } }}>
-        <Button fullWidth disabled={!name.trim()} onClick={() => onJoin(name.trim())}>
-          הצטרף
+      <motion.div
+        variants={{ hidden: { opacity: 0, y: 10 }, show: { opacity: 1, y: 0 } }}
+        className="flex flex-col gap-2"
+      >
+        <Button fullWidth disabled={!name.trim()} loading={joining} onClick={submit}>
+          {joining ? 'מצטרפים...' : 'הצטרף'}
         </Button>
+        {error && (
+          <p role="alert" className="text-center text-sm text-brand-coral-400">
+            {error}
+          </p>
+        )}
       </motion.div>
     </motion.div>
   );

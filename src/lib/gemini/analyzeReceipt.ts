@@ -114,22 +114,48 @@ export interface AnalyzeReceiptResult {
   includeServiceInSplitDefault: boolean;
 }
 
+/**
+ * What the request is actually doing right now.
+ *
+ * The overlay used to advance three hardcoded lines on a blind 650ms timer and
+ * fill a progress bar to 92% over two seconds — tuned against the 2s mock delay,
+ * while a real call with two 503 retries can run 25s. So it sat frozen at 92%
+ * for twenty seconds, and never mentioned that it was retrying.
+ *
+ * `reading` deliberately carries no percentage: we genuinely don't know how long
+ * Gemini will take, and the honest UI for that is an indeterminate bar.
+ */
+export type AnalyzeStage =
+  | { kind: 'preparing' }
+  | { kind: 'reading'; attempt: number; maxAttempts: number }
+  | { kind: 'retrying'; attempt: number; maxAttempts: number; waitMs: number }
+  | { kind: 'parsing' };
+
+export interface AnalyzeReceiptOptions {
+  onStage?: (stage: AnalyzeStage) => void;
+}
+
 /** Duck-typed rather than an `instanceof ApiError` check, so callers don't need
  * to statically import (and bundle) @google/genai just to inspect an error. */
 export function isGeminiOverloadedError(err: unknown): boolean {
   return err instanceof Error && 'status' in err && (err as { status?: unknown }).status === 503;
 }
 
-export async function analyzeReceipt(file: File): Promise<AnalyzeReceiptResult> {
+export async function analyzeReceipt(
+  file: File,
+  { onStage }: AnalyzeReceiptOptions = {},
+): Promise<AnalyzeReceiptResult> {
   const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
   if (!apiKey) throw new Error('VITE_GEMINI_API_KEY is not set');
 
+  onStage?.({ kind: 'preparing' });
   const { GoogleGenAI, ApiError } = await import('@google/genai');
   const ai = new GoogleGenAI({ apiKey });
   const imageBase64 = await fileToBase64(file);
 
   let response;
   for (let attempt = 1; ; attempt++) {
+    onStage?.({ kind: 'reading', attempt, maxAttempts: MAX_ATTEMPTS });
     try {
       response = await ai.models.generateContent({
         model: MODEL,
@@ -149,10 +175,15 @@ export async function analyzeReceipt(file: File): Promise<AnalyzeReceiptResult> 
       // quota exhausted) fails immediately instead of retrying pointlessly.
       const isTransient = err instanceof ApiError && err.status === 503;
       if (!isTransient || attempt >= MAX_ATTEMPTS) throw err;
-      await sleep(RETRY_BASE_DELAY_MS * 2 ** (attempt - 1));
+      const waitMs = RETRY_BASE_DELAY_MS * 2 ** (attempt - 1);
+      // Told to the user rather than hidden: a silent 1-2s stall in the middle
+      // of an already-long wait is what makes the app feel broken.
+      onStage?.({ kind: 'retrying', attempt: attempt + 1, maxAttempts: MAX_ATTEMPTS, waitMs });
+      await sleep(waitMs);
     }
   }
 
+  onStage?.({ kind: 'parsing' });
   const text = response.text;
   if (!text) throw new Error('Gemini returned an empty response');
 

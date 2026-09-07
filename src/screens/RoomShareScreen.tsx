@@ -10,7 +10,7 @@ import { ParticipantJoinFeed } from '../components/room-share/ParticipantJoinFee
 import { HostControls } from '../components/room-share/HostControls';
 import { EditBillSheet } from '../components/room-share/EditBillSheet';
 import { RoomNotFoundState } from '../components/join/RoomNotFoundState';
-import { Spinner } from '../components/ui/Spinner';
+import { RoomLoadingState } from '../components/ui/RoomLoadingState';
 import { useRoomState } from '../hooks/useRoomState';
 import { useAuthUid } from '../hooks/useAuthUid';
 import { useRedirectWhenClosed } from '../hooks/useRedirectWhenClosed';
@@ -29,9 +29,9 @@ export function RoomShareScreen() {
   if (roomState.status === 'loading') {
     return (
       <AppShell>
-        <div className="flex flex-1 items-center justify-center">
-          <Spinner />
-        </div>
+        <PageTransition>
+          <RoomLoadingState />
+        </PageTransition>
       </AppShell>
     );
   }

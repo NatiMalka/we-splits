@@ -9,13 +9,16 @@ import { MenuItemCard } from '../components/menu/MenuItemCard';
 import { QuantitySplitSheet } from '../components/menu/QuantitySplitSheet';
 import { LiveTotalsDrawer } from '../components/menu/LiveTotalsDrawer';
 import { RoomNotFoundState } from '../components/join/RoomNotFoundState';
-import { Spinner } from '../components/ui/Spinner';
+import { RoomLoadingState } from '../components/ui/RoomLoadingState';
 import { useRoomState } from '../hooks/useRoomState';
 import { useAuthUid } from '../hooks/useAuthUid';
 import { useCalculations } from '../hooks/useCalculations';
 import { useRedirectWhenClosed } from '../hooks/useRedirectWhenClosed';
 import { useRoomStoreContext } from '../store/RoomStoreContext';
 import type { BillItem, Room, Selection } from '../types';
+
+/** The whole cascade finishes within this, however long the receipt is. */
+const MAX_STAGGER_TOTAL_S = 0.5;
 
 export function MenuScreen() {
   const { roomCode = '' } = useParams();
@@ -40,9 +43,9 @@ export function MenuScreen() {
   if (roomState.status === 'loading' || uid === null) {
     return (
       <AppShell>
-        <div className="flex flex-1 items-center justify-center">
-          <Spinner />
-        </div>
+        <PageTransition>
+          <RoomLoadingState />
+        </PageTransition>
       </AppShell>
     );
   }
@@ -97,6 +100,8 @@ export function MenuScreen() {
     total: t.total,
   }));
 
+  const itemCount = room.billData.items.length;
+
   return (
     <AppShell>
       <PageTransition>
@@ -107,7 +112,17 @@ export function MenuScreen() {
         <motion.div
           initial="hidden"
           animate="show"
-          variants={{ hidden: {}, show: { transition: { staggerChildren: 0.04 } } }}
+          variants={{
+            hidden: {},
+            // Capped: at a flat 0.04s per row a 40-item receipt made the last
+            // row appear ~1.6s after the first. The cascade is decoration, and
+            // it must never become a wait (plan item 3.15).
+            show: {
+              transition: {
+                staggerChildren: Math.min(0.04, MAX_STAGGER_TOTAL_S / Math.max(itemCount, 1)),
+              },
+            },
+          }}
           className="flex flex-1 flex-col gap-2.5 pb-2"
         >
           {room.billData.items.map((item) => {

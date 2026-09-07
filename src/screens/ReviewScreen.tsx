@@ -118,6 +118,7 @@ export function ReviewScreen() {
           tipAmount={tipAmount}
           total={total}
           canSubmit={!creating && draft.creatorName.trim().length > 0 && draft.billData.items.length > 0}
+          creating={creating}
           onSubmit={handleCreateRoom}
         />
       </PageTransition>

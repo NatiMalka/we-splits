@@ -20,13 +20,35 @@ export function RoomFooterActions({
   busy,
 }: RoomFooterActionsProps) {
   const [confirming, setConfirming] = useState<'close' | 'leave' | null>(null);
+  // Which action is in flight, so the spinner lands on the button the user
+  // actually pressed. Closing the bill doesn't navigate on its own — it waits
+  // for Firestore to echo the status back through the live subscription — so
+  // without this the user taps "כן, סגור" and sits on an inert screen for a
+  // full round trip with no sign anything is happening.
+  const [pending, setPending] = useState<'close' | 'leave' | null>(null);
+
+  // The screen clears `busy` on failure; drop the pending marker with it so the
+  // button doesn't stay stuck mid-spin.
+  if (!busy && pending !== null) setPending(null);
 
   return (
     <div className="mt-2 flex flex-col gap-2.5 border-t border-white/5 pt-4">
       {canCloseBill && (
-        <Button variant="secondary" fullWidth disabled={busy} onClick={() => setConfirming('close')}>
-          <CheckCircle2 size={18} />
-          סגור חשבון
+        <Button
+          variant="secondary"
+          fullWidth
+          disabled={busy}
+          loading={busy && pending === 'close'}
+          onClick={() => setConfirming('close')}
+        >
+          {busy && pending === 'close' ? (
+            'סוגר את החשבון...'
+          ) : (
+            <>
+              <CheckCircle2 size={18} />
+              סגור חשבון
+            </>
+          )}
         </Button>
       )}
 
@@ -37,7 +59,7 @@ export function RoomFooterActions({
         className="flex items-center justify-center gap-1.5 py-2 text-sm font-medium text-brand-sand/40 disabled:opacity-40"
       >
         <LogOut size={14} />
-        עזוב את החדר
+        {busy && pending === 'leave' ? 'יוצא מהחדר...' : 'עזוב את החדר'}
       </button>
 
       <ConfirmSheet
@@ -51,6 +73,7 @@ export function RoomFooterActions({
         confirmLabel="כן, סגור"
         onConfirm={() => {
           setConfirming(null);
+          setPending('close');
           onCloseBill();
         }}
         onCancel={() => setConfirming(null)}
@@ -64,6 +87,7 @@ export function RoomFooterActions({
         confirmLabel="כן, עזוב"
         onConfirm={() => {
           setConfirming(null);
+          setPending('leave');
           onLeaveRoom();
         }}
         onCancel={() => setConfirming(null)}

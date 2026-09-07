@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, HandCoins } from 'lucide-react';
 import { AppShell } from '../components/layout/AppShell';
 import { PageTransition } from '../components/layout/PageTransition';
 import { GlassCard } from '../components/layout/GlassCard';
@@ -14,7 +14,8 @@ import { RoomFooterActions } from '../components/summary/RoomFooterActions';
 import { SettleUpCard } from '../components/summary/SettleUpCard';
 import { UnclaimedAmountCard } from '../components/summary/UnclaimedAmountCard';
 import { RoomNotFoundState } from '../components/join/RoomNotFoundState';
-import { Spinner } from '../components/ui/Spinner';
+import { RoomLoadingState } from '../components/ui/RoomLoadingState';
+import { EmptyState } from '../components/ui/EmptyState';
 import { useRoomState } from '../hooks/useRoomState';
 import { useAuthUid } from '../hooks/useAuthUid';
 import { useCalculations } from '../hooks/useCalculations';
@@ -49,9 +50,9 @@ export function SummaryScreen() {
   if (roomState.status === 'loading' || uid === null) {
     return (
       <AppShell>
-        <div className="flex flex-1 items-center justify-center">
-          <Spinner />
-        </div>
+        <PageTransition>
+          <RoomLoadingState />
+        </PageTransition>
       </AppShell>
     );
   }
@@ -85,6 +86,9 @@ export function SummaryScreen() {
     };
   });
 
+  // Narrows myTotal for every branch below, so the "you picked nothing" case and
+  // the real-total case can't drift apart.
+  const hasClaimed = myTotal !== undefined && myTotal.itemBreakdown.length > 0;
   const settleUp = computeSettleUpStatus(room, totals);
   const unclaimedAmount = computeUnclaimedAmount(room);
 
@@ -153,7 +157,7 @@ export function SummaryScreen() {
             <h1 className="flex-1 text-lg font-bold text-brand-sand">הסיכום שלך</h1>
           </div>
 
-          {myTotal && myTotal.itemBreakdown.length > 0 && (
+          {hasClaimed && (
             <GlassCard className="p-4">
               {myTotal.itemBreakdown.map((line, i) => (
                 <SummaryItemRow key={line.itemId} name={line.itemName} units={line.units} amount={line.amount} index={i} />
@@ -185,14 +189,33 @@ export function SummaryScreen() {
             </GlassCard>
           )}
 
-          <SummaryTotalCard total={myTotal?.total ?? 0} />
+          {hasClaimed ? (
+            <SummaryTotalCard total={myTotal.total} />
+          ) : (
+            // Previously this rendered SummaryTotalCard with 0, complete with its
+            // celebratory scale pop — a confident "0 ₪" that reads as a bug
+            // rather than as "you haven't picked anything yet" (plan item 3.13).
+            <EmptyState
+              icon={<HandCoins size={22} />}
+              title="עדיין לא בחרת מנות"
+              detail="סמנו מה אכלתם וכאן יופיע הסכום שלכם."
+              action={{
+                label: 'בחר את המנות שלי',
+                onClick: () => navigate(`/room/${roomCode}/menu`),
+              }}
+            />
+          )}
 
           <UnclaimedAmountCard unclaimedAmount={unclaimedAmount} />
 
-          {me && myTotal && <ShareSummaryButton text={buildSummaryShareText(me.name, room.billData.restaurantName, myTotal)} />}
+          {me && hasClaimed && (
+            <ShareSummaryButton
+              text={buildSummaryShareText(me.name, room.billData.restaurantName, myTotal)}
+            />
+          )}
 
           {/* Everyone marks their own — including whoever scanned the receipt. */}
-          {me && myTotal && myTotal.total > 0 && (
+          {me && hasClaimed && myTotal.total > 0 && (
             <PaidToggleButton paid={me.paid} onToggle={handleTogglePaid} />
           )}
 

@@ -7,7 +7,7 @@ import { FinalBillCard } from '../components/closed/FinalBillCard';
 import { ShareAppButton } from '../components/closed/ShareAppButton';
 import { Confetti } from '../components/closed/Confetti';
 import { RoomNotFoundState } from '../components/join/RoomNotFoundState';
-import { Spinner } from '../components/ui/Spinner';
+import { RoomLoadingState } from '../components/ui/RoomLoadingState';
 import { useRoomState } from '../hooks/useRoomState';
 import { useAuthUid } from '../hooks/useAuthUid';
 import { useCalculations } from '../hooks/useCalculations';
@@ -28,9 +28,9 @@ export function BillClosedScreen() {
   if (roomState.status === 'loading' || uid === null) {
     return (
       <AppShell>
-        <div className="flex flex-1 items-center justify-center">
-          <Spinner />
-        </div>
+        <PageTransition>
+          <RoomLoadingState />
+        </PageTransition>
       </AppShell>
     );
   }

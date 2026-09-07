@@ -6,6 +6,7 @@ import { Spinner } from './components/ui/Spinner';
 import { Button } from './components/ui/Button';
 import { useAuthState } from './hooks/useAuthUid';
 import { WifiOff } from 'lucide-react';
+import { RouteFallback } from './routes/RouteFallback';
 import {
   BillClosed,
   EnterCode,
@@ -14,7 +15,6 @@ import {
   NotFound,
   Review,
   RoomShare,
-  RouteFallback,
   Summary,
   Upload,
   preloadNextScreen,

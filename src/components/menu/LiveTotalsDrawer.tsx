@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { motion } from 'motion/react';
+import { AnimatePresence, motion } from 'motion/react';
 import { ChevronUp } from 'lucide-react';
 import { AnimatedCurrency } from '../ui/AnimatedCurrency';
 import { formatCurrency } from '../../lib/format';
@@ -33,12 +33,15 @@ export function LiveTotalsDrawer({ myTotal, allTotals }: LiveTotalsDrawerProps) 
         </div>
       </button>
 
-      {expanded && (
+      {/* The `exit` below was dead code until this AnimatePresence was added. */}
+      <AnimatePresence initial={false}>
+        {expanded && (
         <motion.div
           initial={{ height: 0, opacity: 0 }}
           animate={{ height: 'auto', opacity: 1 }}
           exit={{ height: 0, opacity: 0 }}
-          className="flex flex-col gap-2 px-5 pb-4"
+          transition={{ duration: 0.22, ease: 'easeOut' }}
+          className="flex flex-col gap-2 overflow-hidden px-5 pb-4"
         >
           {allTotals.map((p) => (
             <div key={p.name} className="flex items-center justify-between text-sm">
@@ -47,7 +50,8 @@ export function LiveTotalsDrawer({ myTotal, allTotals }: LiveTotalsDrawerProps) 
             </div>
           ))}
         </motion.div>
-      )}
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 }

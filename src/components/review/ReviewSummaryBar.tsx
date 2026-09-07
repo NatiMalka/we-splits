@@ -7,10 +7,19 @@ interface ReviewSummaryBarProps {
   tipAmount: number;
   total: number;
   canSubmit: boolean;
+  /** Distinct from `!canSubmit`: the room is being written right now. */
+  creating?: boolean;
   onSubmit: () => void;
 }
 
-export function ReviewSummaryBar({ subtotal, tipAmount, total, canSubmit, onSubmit }: ReviewSummaryBarProps) {
+export function ReviewSummaryBar({
+  subtotal,
+  tipAmount,
+  total,
+  canSubmit,
+  creating,
+  onSubmit,
+}: ReviewSummaryBarProps) {
   return (
     <div className="glass-card-solid sticky bottom-0 mt-4 flex flex-col gap-3 px-5 py-4">
       <div className="flex items-center justify-between text-sm text-brand-sand/60">
@@ -20,8 +29,8 @@ export function ReviewSummaryBar({ subtotal, tipAmount, total, canSubmit, onSubm
       <div className="flex items-center justify-between">
         <AnimatedCurrency value={total} duration={0.3} className="text-lg font-bold text-brand-sand" />
         <div className="w-40">
-          <Button onClick={onSubmit} disabled={!canSubmit} fullWidth>
-            צור חדר
+          <Button onClick={onSubmit} disabled={!canSubmit} loading={creating} fullWidth>
+            {creating ? 'יוצר חדר...' : 'צור חדר'}
           </Button>
         </div>
       </div>

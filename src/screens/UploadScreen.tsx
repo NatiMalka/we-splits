@@ -9,21 +9,27 @@ import { BrandHeader } from '../components/upload/BrandHeader';
 import { AnalyzingOverlay } from '../components/upload/AnalyzingOverlay';
 import { MockReceiptPicker } from '../components/upload/MockReceiptPicker';
 import { useDraftBill } from '../draft/DraftBillContext';
-import { analyzeReceipt, isGeminiOverloadedError } from '../lib/gemini/analyzeReceipt';
+import {
+  analyzeReceipt,
+  isGeminiOverloadedError,
+  type AnalyzeStage,
+} from '../lib/gemini/analyzeReceipt';
 import { mockAnalyzeReceipt } from '../mock/mockAnalyze';
 import type { MockReceiptKey } from '../mock/receipts';
 
 export function UploadScreen() {
-  const [analyzing, setAnalyzing] = useState(false);
+  // The stage doubles as the "is the overlay up?" flag — null means idle. One
+  // source of truth avoids the overlay and the progress text disagreeing.
+  const [stage, setStage] = useState<AnalyzeStage | null>(null);
   const [error, setError] = useState<string | null>(null);
   const { setBillData } = useDraftBill();
   const navigate = useNavigate();
 
   async function handleCapture(file: File) {
     setError(null);
-    setAnalyzing(true);
+    setStage({ kind: 'preparing' });
     try {
-      const result = await analyzeReceipt(file);
+      const result = await analyzeReceipt(file, { onStage: setStage });
       setBillData(result.billData, result.includeServiceInSplitDefault);
       navigate('/review');
     } catch (err) {
@@ -33,15 +39,22 @@ export function UploadScreen() {
           : 'לא הצלחנו לנתח את החשבונית. נסו שוב עם תמונה ברורה יותר.',
       );
     } finally {
-      setAnalyzing(false);
+      setStage(null);
     }
   }
 
   async function handleMockPick(key: MockReceiptKey) {
-    setAnalyzing(true);
-    const result = await mockAnalyzeReceipt(key);
-    setBillData(result.billData, result.includeServiceInSplitDefault);
-    navigate('/review');
+    setError(null);
+    setStage({ kind: 'preparing' });
+    try {
+      const result = await mockAnalyzeReceipt(key, { onStage: setStage });
+      setBillData(result.billData, result.includeServiceInSplitDefault);
+      navigate('/review');
+    } catch {
+      setError('לא הצלחנו לנתח את החשבונית. נסו שוב.');
+    } finally {
+      setStage(null);
+    }
   }
 
   return (
@@ -66,7 +79,7 @@ export function UploadScreen() {
           {import.meta.env.DEV && <MockReceiptPicker onPick={handleMockPick} />}
         </div>
       </PageTransition>
-      <AnimatePresence>{analyzing && <AnalyzingOverlay />}</AnimatePresence>
+      <AnimatePresence>{stage && <AnalyzingOverlay stage={stage} />}</AnimatePresence>
     </AppShell>
   );
 }

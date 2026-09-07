@@ -4,7 +4,7 @@ import { AppShell } from '../components/layout/AppShell';
 import { PageTransition } from '../components/layout/PageTransition';
 import { JoinForm } from '../components/join/JoinForm';
 import { RoomNotFoundState } from '../components/join/RoomNotFoundState';
-import { Spinner } from '../components/ui/Spinner';
+import { RoomLoadingState } from '../components/ui/RoomLoadingState';
 import { useRoomState } from '../hooks/useRoomState';
 import { useAuthUid } from '../hooks/useAuthUid';
 import { useRoomStoreContext } from '../store/RoomStoreContext';
@@ -25,9 +25,9 @@ export function JoinScreen() {
   if (roomState.status === 'loading' || uid === null) {
     return (
       <AppShell>
-        <div className="flex flex-1 items-center justify-center">
-          <Spinner />
-        </div>
+        <PageTransition>
+          <RoomLoadingState />
+        </PageTransition>
       </AppShell>
     );
   }
@@ -47,13 +47,15 @@ export function JoinScreen() {
   if (alreadyJoined) {
     return (
       <AppShell>
-        <div className="flex flex-1 items-center justify-center">
-          <Spinner />
-        </div>
+        <PageTransition>
+          <RoomLoadingState />
+        </PageTransition>
       </AppShell>
     );
   }
 
+  // Intentionally lets a failure throw: JoinForm owns the pending and error UI,
+  // and swallowing it here would leave the button spinning forever.
   async function handleJoin(name: string) {
     await store.joinRoom(roomCode, name);
     navigate(`/room/${roomCode}/menu`);

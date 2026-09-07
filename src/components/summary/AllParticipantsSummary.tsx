@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { ChevronDown, Users } from 'lucide-react';
-import { motion } from 'motion/react';
+import { AnimatePresence, motion } from 'motion/react';
 import { formatCurrency } from '../../lib/format';
 import { Badge } from '../ui/Badge';
 
@@ -25,8 +25,17 @@ export function AllParticipantsSummary({ rows }: { rows: ParticipantSummaryRow[]
           <ChevronDown size={16} className="text-brand-sand/50" />
         </motion.div>
       </button>
-      {open && (
-        <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} className="flex flex-col gap-2.5 px-5 pb-4">
+      {/* Without AnimatePresence the panel expanded smoothly and then vanished
+          instantly on close — an `exit` prop on a plain conditional never runs. */}
+      <AnimatePresence initial={false}>
+        {open && (
+        <motion.div
+          initial={{ height: 0, opacity: 0 }}
+          animate={{ height: 'auto', opacity: 1 }}
+          exit={{ height: 0, opacity: 0 }}
+          transition={{ duration: 0.22, ease: 'easeOut' }}
+          className="flex flex-col gap-2.5 overflow-hidden px-5 pb-4"
+        >
           {rows.map((row) => (
             <div key={row.participantId} className="flex items-center justify-between text-sm">
               <div className="flex items-center gap-2">
@@ -44,7 +53,8 @@ export function AllParticipantsSummary({ rows }: { rows: ParticipantSummaryRow[]
             <span className="text-brand-sand">{formatCurrency(sum)}</span>
           </div>
         </motion.div>
-      )}
+        )}
+      </AnimatePresence>
     </div>
   );
 }

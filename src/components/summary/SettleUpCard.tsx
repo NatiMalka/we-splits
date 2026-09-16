@@ -26,7 +26,7 @@ export function SettleUpCard({ unpaidAmount, paidCount, owingCount }: SettleUpCa
     >
       <div className="flex items-center gap-3">
         <div
-          className={`flex h-10 w-10 items-center justify-center rounded-2xl ${
+          className={`flex h-10 w-10 items-center justify-center rounded-lg ${
             allSettled ? 'bg-brand-teal-500/20 text-brand-teal-300' : 'bg-brand-amber-500/20 text-brand-amber-300'
           }`}
         >

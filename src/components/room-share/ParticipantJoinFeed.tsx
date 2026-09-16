@@ -32,7 +32,7 @@ export function ParticipantJoinFeed({ participants }: { participants: Participan
           // below is nearly unreachable — whoever scanned the receipt is a
           // participant too, so this card shows "(1)" from the moment the room
           // exists, and a bare avatar with no prompt reads as "nothing to do".
-          <p className="ms-1 self-center text-sm text-brand-sand/55">
+          <p className="ms-1 self-center text-sm text-pretty text-brand-sand/55">
             רק אתם כאן — שתפו את הקוד כדי שיצטרפו
           </p>
         )}

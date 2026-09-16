@@ -97,11 +97,11 @@ export function EditBillSheet({ open, room, onSave, onClose }: EditBillSheetProp
                     aria-label="סגור"
                     className="relative text-brand-sand/60 after:absolute after:top-1/2 after:left-1/2 after:size-11 after:-translate-1/2"
                   >
-                    <X size={20} />
+                    <X size={20} strokeWidth={1.5} />
                   </button>
                 </div>
 
-                <p className="pb-3 text-xs leading-relaxed text-brand-sand/50">
+                <p className="pb-3 text-xs leading-relaxed text-pretty text-brand-sand/50">
                   שינויים כאן משפיעים על כולם בחדר, ומתעדכנים אצלם מיד.
                 </p>
 

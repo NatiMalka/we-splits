@@ -50,7 +50,7 @@ export function FinalBillCard({ rows, restaurantName, myParticipantId }: FinalBi
             </span>
           </div>
           <div className="flex shrink-0 items-center gap-2">
-            {row.paid && <Check size={15} className="text-brand-teal-300" />}
+            {row.paid && <Check size={15} strokeWidth={1.5} className="text-brand-teal-300" />}
             <span className="font-semibold text-brand-sand tabular-nums">{formatCurrency(row.total)}</span>
           </div>
         </motion.div>

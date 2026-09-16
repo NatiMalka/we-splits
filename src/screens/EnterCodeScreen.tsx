@@ -40,7 +40,7 @@ export function EnterCodeScreen() {
             aria-label="חזור"
             className="relative text-brand-sand/60 after:absolute after:top-1/2 after:left-1/2 after:size-11 after:-translate-1/2"
           >
-            <ArrowRight size={20} />
+            <ArrowRight size={20} strokeWidth={1.5} />
           </button>
           <h1 className="text-lg font-bold text-brand-sand">הצטרפות עם קוד</h1>
         </div>
@@ -51,7 +51,7 @@ export function EnterCodeScreen() {
               <KeyRound size={24} />
             </div>
 
-            <p className="text-center text-sm text-brand-sand/60">
+            <p className="text-center text-sm text-pretty text-brand-sand/60">
               הזינו את {ROOM_CODE_LENGTH} התווים שמופיעים על המסך של מי שסרק את החשבונית
             </p>
 

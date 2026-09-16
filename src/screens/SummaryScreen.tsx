@@ -152,7 +152,7 @@ export function SummaryScreen() {
               aria-label="חזרה לבחירת המנות"
               className="relative text-brand-sand/60 after:absolute after:top-1/2 after:left-1/2 after:size-11 after:-translate-1/2"
             >
-              <ArrowRight size={20} />
+              <ArrowRight size={20} strokeWidth={1.5} />
             </button>
             <h1 className="flex-1 text-lg font-bold text-brand-sand">הסיכום שלך</h1>
           </div>

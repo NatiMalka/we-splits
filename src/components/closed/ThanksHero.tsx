@@ -19,7 +19,7 @@ export function ThanksHero({ restaurantName }: { restaurantName: string | null }
         transition={{ delay: 0.15 }}
         className="space-y-1.5"
       >
-        <h1 className="text-2xl font-extrabold text-brand-sand">החשבון נסגר!</h1>
+        <h1 className="text-2xl font-extrabold text-balance text-brand-sand">החשבון נסגר!</h1>
         <p className="text-brand-sand/60">
           {restaurantName ? `תודה שהתחלקתם ב${restaurantName}` : 'תודה שהתחלקתם'}
         </p>

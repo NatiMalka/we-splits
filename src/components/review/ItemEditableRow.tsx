@@ -48,7 +48,7 @@ export function ItemEditableRow({ item, onChange, onRemove }: ItemEditableRowPro
         aria-label="מחק מנה"
         className="relative shrink-0 text-brand-coral-400/70 hover:text-brand-coral-400 after:absolute after:top-1/2 after:left-1/2 after:size-11 after:-translate-1/2"
       >
-        <Trash2 size={18} />
+        <Trash2 size={18} strokeWidth={1.5} />
       </button>
     </motion.div>
   );

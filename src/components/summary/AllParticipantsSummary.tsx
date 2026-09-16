@@ -22,7 +22,7 @@ export function AllParticipantsSummary({ rows }: { rows: ParticipantSummaryRow[]
           <Users size={16} /> כל הסועדים
         </span>
         <motion.div animate={{ rotate: open ? 180 : 0 }}>
-          <ChevronDown size={16} className="text-brand-sand/50" />
+          <ChevronDown size={16} strokeWidth={1.5} className="text-brand-sand/50" />
         </motion.div>
       </button>
       {/* Without AnimatePresence the panel expanded smoothly and then vanished

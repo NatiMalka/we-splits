@@ -43,7 +43,7 @@ export function JoinForm({ room, onJoin }: JoinFormProps) {
     >
       <motion.div variants={{ hidden: { opacity: 0, y: 10 }, show: { opacity: 1, y: 0 } }} className="text-center">
         <p className="text-sm text-brand-sand/50">מצטרפים לחדר</p>
-        <h1 className="text-xl font-bold text-brand-sand">{room.billData.restaurantName ?? 'החשבונית'}</h1>
+        <h1 className="text-xl text-balance font-bold text-brand-sand">{room.billData.restaurantName ?? 'החשבונית'}</h1>
         <p className="mt-1 text-sm text-brand-sand/60">
           {room.billData.items.length} פריטים · סה"כ {formatCurrency(total)}
         </p>

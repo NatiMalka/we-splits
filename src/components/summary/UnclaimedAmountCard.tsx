@@ -12,7 +12,7 @@ export function UnclaimedAmountCard({ unclaimedAmount }: { unclaimedAmount: numb
     >
       <div className="flex items-center gap-3">
         <div
-          className={`flex h-10 w-10 items-center justify-center rounded-2xl ${
+          className={`flex h-10 w-10 items-center justify-center rounded-lg ${
             allClaimed ? 'bg-brand-teal-500/20 text-brand-teal-300' : 'bg-brand-coral-500/20 text-brand-coral-300'
           }`}
         >

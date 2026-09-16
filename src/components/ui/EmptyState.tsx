@@ -27,8 +27,8 @@ export function EmptyState({ icon, title, detail, action }: EmptyStateProps) {
         {icon}
       </div>
       <div>
-        <p className="font-medium text-brand-sand">{title}</p>
-        {detail && <p className="mt-1 text-sm text-brand-sand/60">{detail}</p>}
+        <p className="text-balance font-medium text-brand-sand">{title}</p>
+        {detail && <p className="mt-1 text-sm text-pretty text-brand-sand/60">{detail}</p>}
       </div>
       {action && (
         <Button variant="secondary" onClick={action.onClick}>

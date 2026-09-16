@@ -60,8 +60,8 @@ export function ConfirmSheet({
                   className={`mt-0.5 shrink-0 ${danger ? 'text-brand-coral-400' : 'text-brand-amber-300'}`}
                 />
                 <div>
-                  <h2 className="font-bold text-brand-sand">{title}</h2>
-                  <p className="mt-1 text-sm leading-relaxed text-brand-sand/70">{body}</p>
+                  <h2 className="text-balance font-bold text-brand-sand">{title}</h2>
+                  <p className="mt-1 text-sm leading-relaxed text-pretty text-brand-sand/70">{body}</p>
                 </div>
               </div>
 

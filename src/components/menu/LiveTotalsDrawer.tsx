@@ -28,7 +28,7 @@ export function LiveTotalsDrawer({ myTotal, allTotals }: LiveTotalsDrawerProps) 
             className="text-lg font-bold text-brand-sand"
           />
           <motion.div animate={{ rotate: expanded ? 180 : 0 }}>
-            <ChevronUp size={18} className="text-brand-sand/50" />
+            <ChevronUp size={18} strokeWidth={1.5} className="text-brand-sand/50" />
           </motion.div>
         </div>
       </button>

@@ -35,8 +35,8 @@ export class ErrorBoundary extends Component<Props, State> {
         <div className="glass-card flex max-w-sm flex-col items-center gap-4 p-8 text-center">
           <AlertTriangle size={40} className="text-brand-coral-400" />
           <div>
-            <h1 className="text-lg font-bold text-brand-sand">משהו נשבר</h1>
-            <p className="mt-1 text-sm text-brand-sand/60">
+            <h1 className="text-lg text-balance font-bold text-brand-sand">משהו נשבר</h1>
+            <p className="mt-1 text-sm text-pretty text-brand-sand/60">
               קרתה תקלה לא צפויה. רענון הדף בדרך כלל פותר את זה.
             </p>
           </div>

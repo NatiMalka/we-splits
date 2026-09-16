@@ -77,7 +77,7 @@ export function ReviewScreen() {
             aria-label="חזור"
             className="relative text-brand-sand/60 after:absolute after:top-1/2 after:left-1/2 after:size-11 after:-translate-1/2"
           >
-            <ArrowRight size={20} />
+            <ArrowRight size={20} strokeWidth={1.5} />
           </button>
           <h1 className="text-lg font-bold text-brand-sand">בדקו את הפריטים</h1>
         </div>
@@ -105,7 +105,7 @@ export function ReviewScreen() {
           <GlassCard className="flex flex-col gap-3 p-4">
             <p className="text-sm font-medium text-brand-sand/60">אחוז טיפ</p>
             {draft.billData.serviceFee > 0 && (
-              <p className="text-xs leading-relaxed text-brand-teal-300">
+              <p className="text-xs leading-relaxed text-pretty text-brand-teal-300">
                 שירות כבר נכלל בחשבון — אין צורך בטיפ נוסף. אפשר להוסיף בכל זאת.
               </p>
             )}

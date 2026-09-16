@@ -59,8 +59,8 @@ export default function App() {
           <div className="glass-card flex max-w-sm flex-col items-center gap-4 p-8 text-center">
             <WifiOff size={36} className="text-brand-coral-400" />
             <div>
-              <h1 className="text-lg font-bold text-brand-sand">לא הצלחנו להתחבר</h1>
-              <p className="mt-1 text-sm text-brand-sand/60">
+              <h1 className="text-lg text-balance font-bold text-brand-sand">לא הצלחנו להתחבר</h1>
+              <p className="mt-1 text-sm text-pretty text-brand-sand/60">
                 בדקו את חיבור האינטרנט ונסו שוב.
               </p>
             </div>

@@ -51,7 +51,7 @@ export function MenuItemCard({
           aria-label="פצל כמות"
           className="relative shrink-0 rounded-full border border-white/10 bg-white/5 p-2 text-brand-sand/70 after:absolute after:top-1/2 after:left-1/2 after:size-11 after:-translate-1/2"
         >
-          <Layers size={16} />
+          <Layers size={16} strokeWidth={1.5} />
         </button>
       )}
     </motion.div>

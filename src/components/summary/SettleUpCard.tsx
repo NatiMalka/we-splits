@@ -2,6 +2,7 @@ import { AnimatePresence, motion } from 'motion/react';
 import { CheckCheck, Users } from 'lucide-react';
 import { AnimatedCurrency } from '../ui/AnimatedCurrency';
 import { AnimatedCheck } from '../ui/AnimatedCheck';
+import { ICON_SWAP } from '../ui/iconSwap';
 
 interface SettleUpCardProps {
   unpaidAmount: number;
@@ -45,13 +46,7 @@ export function SettleUpCard({ unpaidAmount, paidCount, owingCount }: SettleUpCa
           character with no transition at all. */}
       <AnimatePresence mode="wait" initial={false}>
         {allSettled ? (
-          <motion.div
-            key="settled"
-            initial={{ scale: 0.6, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ type: 'spring', stiffness: 320, damping: 18 }}
-            className="text-brand-teal-300"
-          >
+          <motion.div key="settled" {...ICON_SWAP} className="text-brand-teal-300">
             <AnimatedCheck size={26} />
           </motion.div>
         ) : (

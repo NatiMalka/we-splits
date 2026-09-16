@@ -15,9 +15,11 @@ export function ParticipantJoinFeed({ participants }: { participants: Participan
             <motion.div
               key={p.id}
               layout
-              initial={{ opacity: 0, scale: 0 }}
+              initial={{ opacity: 0, scale: 0.25 }}
               animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0 }}
+              // Softer than the enter: someone leaving shouldn't pull focus.
+              exit={{ opacity: 0, scale: 0.25, transition: { duration: 0.15, ease: 'easeOut' } }}
+              transition={{ type: 'spring', duration: 0.3, bounce: 0 }}
               className="flex flex-col items-center gap-1"
             >
               <Avatar name={p.name} size={40} />

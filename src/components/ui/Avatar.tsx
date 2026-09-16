@@ -12,9 +12,9 @@ export function Avatar({ name, size = 32, animate = true }: AvatarProps) {
 
   return (
     <motion.div
-      initial={animate ? { scale: 0 } : false}
-      animate={{ scale: 1 }}
-      transition={{ type: 'spring', stiffness: 400, damping: 18 }}
+      initial={animate ? { opacity: 0, scale: 0.25 } : false}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ type: 'spring', duration: 0.3, bounce: 0 }}
       title={name}
       className="flex items-center justify-center rounded-full border-2 border-brand-charcoal font-bold text-brand-charcoal"
       style={{ width: size, height: size, backgroundColor: color, fontSize: size * 0.4 }}

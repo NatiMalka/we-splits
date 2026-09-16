@@ -12,6 +12,32 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="מתחלקים" />
     <title>מתחלקים</title>
+    <meta
+      name="description"
+      content="למה לחשב, אם אפשר פשוט להצטרף. סורקים את החשבונית, כל אחד מסמן מה אכל, וכולם רואים כמה הם חייבים."
+    />
+
+    <!-- One preview for every route: crawlers don't run JS, and firebase.json
+         rewrites all paths here. Written for the join link, since that's the
+         one that gets pasted into a chat. No og:url on purpose — it would pin
+         every preview to a single page. -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="מתחלקים" />
+    <meta property="og:locale" content="he_IL" />
+    <meta property="og:title" content="הוזמנת להצטרף לחדר" />
+    <meta property="og:description" content="למה לחשב, אם אפשר פשוט להצטרף." />
+    <!-- Absolute PNG: WhatsApp ignores both relative paths and SVG. 512x512
+         gives the small square card; a large banner needs a 1200x630 asset. -->
+    <meta property="og:image" content="https://we-splits.web.app/icon-512.png" />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content="512" />
+    <meta property="og:image:height" content="512" />
+    <meta property="og:image:alt" content="מתחלקים" />
+
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="הוזמנת להצטרף לחדר" />
+    <meta name="twitter:description" content="למה לחשב, אם אפשר פשוט להצטרף." />
+    <meta name="twitter:image" content="https://we-splits.web.app/icon-512.png" />
   </head>
   <body>
     <div id="root"></div>

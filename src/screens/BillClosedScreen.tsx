@@ -78,7 +78,7 @@ export function BillClosedScreen() {
             <button
               type="button"
               onClick={() => navigate('/')}
-              className="py-2 text-sm font-medium text-brand-sand/50"
+              className="py-3 text-sm font-medium text-brand-sand/50"
             >
               חשבון חדש
             </button>

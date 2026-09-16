@@ -45,12 +45,12 @@ export function AllParticipantsSummary({ rows }: { rows: ParticipantSummaryRow[]
                 {row.total > 0 &&
                   (row.paid ? <Badge tone="teal">שולם</Badge> : <Badge>טרם שולם</Badge>)}
               </div>
-              <span className="font-medium text-brand-sand">{formatCurrency(row.total)}</span>
+              <span className="font-medium text-brand-sand tabular-nums">{formatCurrency(row.total)}</span>
             </div>
           ))}
           <div className="flex items-center justify-between border-t border-white/10 pt-2 text-sm font-semibold">
             <span className="text-brand-sand/80">סה"כ כולם</span>
-            <span className="text-brand-sand">{formatCurrency(sum)}</span>
+            <span className="text-brand-sand tabular-nums">{formatCurrency(sum)}</span>
           </div>
         </motion.div>
         )}

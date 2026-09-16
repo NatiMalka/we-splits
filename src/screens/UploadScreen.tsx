@@ -70,7 +70,7 @@ export function UploadScreen() {
           <button
             type="button"
             onClick={() => navigate('/join')}
-            className="flex items-center gap-1.5 py-2 text-sm font-medium text-brand-sand/60"
+            className="flex items-center gap-1.5 py-3 text-sm font-medium text-brand-sand/60"
           >
             <KeyRound size={15} />
             יש לי קוד חדר

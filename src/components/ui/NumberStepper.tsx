@@ -16,7 +16,7 @@ export function NumberStepper({ value, min = 0, max = Infinity, step = 1, onChan
         onClick={() => onChange(Math.max(min, Number((value - step).toFixed(2))))}
         disabled={value <= min}
         aria-label="הפחת"
-        className="inline-flex h-7 w-7 items-center justify-center rounded-full text-brand-sand disabled:opacity-30"
+        className="relative inline-flex h-7 w-7 items-center justify-center rounded-full text-brand-sand after:absolute after:top-1/2 after:left-1/2 after:size-11 after:-translate-1/2 disabled:opacity-30"
       >
         <Minus size={16} />
       </button>
@@ -26,7 +26,7 @@ export function NumberStepper({ value, min = 0, max = Infinity, step = 1, onChan
         onClick={() => onChange(Math.min(max, Number((value + step).toFixed(2))))}
         disabled={value >= max}
         aria-label="הוסף"
-        className="inline-flex h-7 w-7 items-center justify-center rounded-full text-brand-sand disabled:opacity-30"
+        className="relative inline-flex h-7 w-7 items-center justify-center rounded-full text-brand-sand after:absolute after:top-1/2 after:left-1/2 after:size-11 after:-translate-1/2 disabled:opacity-30"
       >
         <Plus size={16} />
       </button>

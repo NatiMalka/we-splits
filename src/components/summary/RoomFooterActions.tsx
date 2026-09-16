@@ -56,7 +56,7 @@ export function RoomFooterActions({
         type="button"
         disabled={busy}
         onClick={() => setConfirming('leave')}
-        className="flex items-center justify-center gap-1.5 py-2 text-sm font-medium text-brand-sand/40 disabled:opacity-40"
+        className="flex items-center justify-center gap-1.5 py-3 text-sm font-medium text-brand-sand/40 disabled:opacity-40"
       >
         <LogOut size={14} />
         {busy && pending === 'leave' ? 'יוצא מהחדר...' : 'עזוב את החדר'}

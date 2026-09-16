@@ -46,7 +46,7 @@ export function LiveTotalsDrawer({ myTotal, allTotals }: LiveTotalsDrawerProps) 
           {allTotals.map((p) => (
             <div key={p.name} className="flex items-center justify-between text-sm">
               <span className="text-brand-sand/70">{p.name}</span>
-              <span className="font-medium text-brand-sand/90">{formatCurrency(p.total)}</span>
+              <span className="font-medium text-brand-sand/90 tabular-nums">{formatCurrency(p.total)}</span>
             </div>
           ))}
         </motion.div>

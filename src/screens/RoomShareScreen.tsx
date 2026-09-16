@@ -81,7 +81,7 @@ export function RoomShareScreen() {
             <button
               type="button"
               onClick={() => setEditing(true)}
-              className="flex items-center gap-1.5 text-sm font-medium text-brand-sand/50"
+              className="flex items-center gap-1.5 py-3 text-sm font-medium text-brand-sand/50"
             >
               <Pencil size={14} />
               עריכת החשבונית

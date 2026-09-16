@@ -150,7 +150,7 @@ export function SummaryScreen() {
             <button
               onClick={() => navigate(`/room/${roomCode}/menu`)}
               aria-label="חזרה לבחירת המנות"
-              className="text-brand-sand/60"
+              className="relative text-brand-sand/60 after:absolute after:top-1/2 after:left-1/2 after:size-11 after:-translate-1/2"
             >
               <ArrowRight size={20} />
             </button>

@@ -152,7 +152,7 @@ export function MenuScreen() {
 
         <button
           onClick={() => navigate(`/room/${roomCode}/summary`)}
-          className="mb-2 flex items-center justify-center gap-1.5 self-center text-sm font-medium text-brand-sand/60"
+          className="mb-2 flex items-center justify-center gap-1.5 self-center py-3 text-sm font-medium text-brand-sand/60"
         >
           לסיכום שלי
           <ArrowLeft size={14} />

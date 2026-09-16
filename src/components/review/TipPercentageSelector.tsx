@@ -23,7 +23,7 @@ export function TipPercentageSelector({ value, onChange }: TipPercentageSelector
             setCustomMode(false);
             onChange(preset);
           }}
-          className="relative rounded-full px-4 py-2 text-sm font-semibold text-brand-sand"
+          className="relative rounded-full px-4 py-3 text-sm font-semibold text-brand-sand"
         >
           {!customMode && value === preset && (
             <motion.div
@@ -40,7 +40,7 @@ export function TipPercentageSelector({ value, onChange }: TipPercentageSelector
       <button
         type="button"
         onClick={() => setCustomMode(true)}
-        className="relative rounded-full px-4 py-2 text-sm font-semibold"
+        className="relative rounded-full px-4 py-3 text-sm font-semibold"
       >
         {customMode && (
           <motion.div
@@ -58,7 +58,7 @@ export function TipPercentageSelector({ value, onChange }: TipPercentageSelector
           max={100}
           value={value}
           onChange={(e) => onChange(Math.max(0, Math.min(100, Number(e.target.value) || 0)))}
-          className="w-16 rounded-full border border-white/10 bg-white/5 py-1.5 text-center text-sm text-brand-sand outline-none"
+          className="w-16 rounded-full border border-white/10 bg-white/5 py-3 text-center text-sm text-brand-sand outline-none"
         />
       )}
     </div>

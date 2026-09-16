@@ -15,7 +15,7 @@ export function SummaryItemRow({ name, units, amount, index }: { name: string; u
         {name}
         {units !== 1 && <span className="ms-1.5 text-xs text-brand-sand/40">× {units}</span>}
       </span>
-      <span className="font-medium text-brand-sand">{formatCurrency(amount)}</span>
+      <span className="font-medium text-brand-sand tabular-nums">{formatCurrency(amount)}</span>
     </motion.div>
   );
 }

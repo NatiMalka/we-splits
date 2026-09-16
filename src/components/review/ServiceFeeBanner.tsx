@@ -17,7 +17,7 @@ export function ServiceFeeBanner({ serviceFee, includeInSplit, onToggle }: Servi
       <button
         type="button"
         onClick={() => onToggle(!includeInSplit)}
-        className={`shrink-0 rounded-full px-3 py-1.5 text-xs font-semibold transition-colors ${
+        className={`relative shrink-0 rounded-full px-3 py-1.5 text-xs font-semibold transition-colors after:absolute after:inset-x-0 after:top-1/2 after:h-11 after:-translate-y-1/2 ${
           includeInSplit ? 'bg-brand-teal-500 text-brand-charcoal' : 'bg-white/10 text-brand-sand/60'
         }`}
       >

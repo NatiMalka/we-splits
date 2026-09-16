@@ -72,7 +72,11 @@ export function ReviewScreen() {
     <AppShell>
       <PageTransition>
         <div className="flex items-center gap-3 pb-4">
-          <button onClick={() => navigate('/')} aria-label="חזור" className="text-brand-sand/60">
+          <button
+            onClick={() => navigate('/')}
+            aria-label="חזור"
+            className="relative text-brand-sand/60 after:absolute after:top-1/2 after:left-1/2 after:size-11 after:-translate-1/2"
+          >
             <ArrowRight size={20} />
           </button>
           <h1 className="text-lg font-bold text-brand-sand">בדקו את הפריטים</h1>

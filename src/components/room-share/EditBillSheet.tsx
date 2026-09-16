@@ -91,7 +91,12 @@ export function EditBillSheet({ open, room, onSave, onClose }: EditBillSheetProp
               <div className="glass-card-solid flex w-full max-w-md flex-col rounded-b-none p-5">
                 <div className="flex items-center justify-between pb-3">
                   <h2 className="font-bold text-brand-sand">עריכת החשבונית</h2>
-                  <button type="button" onClick={onClose} aria-label="סגור" className="text-brand-sand/60">
+                  <button
+                    type="button"
+                    onClick={onClose}
+                    aria-label="סגור"
+                    className="relative text-brand-sand/60 after:absolute after:top-1/2 after:left-1/2 after:size-11 after:-translate-1/2"
+                  >
                     <X size={20} />
                   </button>
                 </div>

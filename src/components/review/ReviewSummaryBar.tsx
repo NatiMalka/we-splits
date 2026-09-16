@@ -22,7 +22,7 @@ export function ReviewSummaryBar({
 }: ReviewSummaryBarProps) {
   return (
     <div className="glass-card-solid sticky bottom-0 mt-4 flex flex-col gap-3 px-5 py-4">
-      <div className="flex items-center justify-between text-sm text-brand-sand/60">
+      <div className="flex items-center justify-between text-sm text-brand-sand/60 tabular-nums">
         <span>ביניים {formatCurrency(subtotal)}</span>
         <span>טיפ {formatCurrency(tipAmount)}</span>
       </div>

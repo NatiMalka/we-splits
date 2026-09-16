@@ -39,14 +39,14 @@ export function ItemEditableRow({ item, onChange, onRemove }: ItemEditableRowPro
         onChange={(e) => onChange({ ...item, price: Math.max(0, Number(e.target.value) || 0) })}
         className="w-16 rounded-lg border border-white/10 bg-white/5 py-1 text-center text-sm text-brand-sand outline-none"
       />
-      <span className="w-14 shrink-0 text-start text-sm text-brand-sand/50">
+      <span className="w-14 shrink-0 text-start text-sm text-brand-sand/50 tabular-nums">
         {formatCurrency(item.price * item.quantity)}
       </span>
       <button
         type="button"
         onClick={() => onRemove(item.id)}
         aria-label="מחק מנה"
-        className="shrink-0 text-brand-coral-400/70 hover:text-brand-coral-400"
+        className="relative shrink-0 text-brand-coral-400/70 hover:text-brand-coral-400 after:absolute after:top-1/2 after:left-1/2 after:size-11 after:-translate-1/2"
       >
         <Trash2 size={18} />
       </button>
